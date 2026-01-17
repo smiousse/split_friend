@@ -1,0 +1,35 @@
+services:
+  splitfriend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: splitfriend
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_PASSWORD=${DB_PASSWORD:-splitfriend_secret}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - SERVER_PORT=8080
+      - BACKUP_AUTO_ENABLED=${BACKUP_AUTO_ENABLED:-true}
+      - BACKUP_MAX_FILES=${BACKUP_MAX_FILES:-10}
+      - BACKUP_CRON=${BACKUP_CRON:-0 0 2 * * ?}
+    volumes:
+      - splitfriend_data:/app/data
+      - splitfriend_uploads:/app/uploads
+      - splitfriend_backups:/app/backups
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  splitfriend_data:
+    driver: local
+  splitfriend_uploads:
+    driver: local
+  splitfriend_backups:
+    driver: local

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Login - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="icon-circle primary mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.75rem;">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <h3 class="card-title mb-1">Welcome Back</h3>
+                        <p class="text-muted">Sign in to your account</p>
+                    </div>
+
+                    <div th:if="${param.error}" class="alert alert-danger d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span>Invalid email or password</span>
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-success d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <span>You have been logged out</span>
+                    </div>
+                    <div th:if="${message}" class="alert alert-success d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <span th:text="${message}"></span>
+                    </div>
+
+                    <form th:action="@{/login}" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">
+                                <i class="bi bi-envelope me-1"></i> Email
+                            </label>
+                            <input type="email" class="form-control" id="username" name="username"
+                                   placeholder="Enter your email" required autofocus>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="bi bi-key me-1"></i> Password
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password"
+                                   placeholder="Enter your password" required>
+                        </div>
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe" name="remember-me">
+                            <label class="form-check-label" for="rememberMe">
+                                <i class="bi bi-clock-history me-1"></i> Remember me
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                        </button>
+                    </form>
+
+                    <hr>
+                    <p class="text-center text-muted mb-0">
+                        <small>
+                            <i class="bi bi-info-circle me-1"></i>
+                            Contact your administrator for account access
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

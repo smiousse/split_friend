@@ -1,0 +1,18 @@
+I want an app that will have exactly the same features as splitpro (https://github.com/oss-apps/split-pro) but in java stack as described below.
+
+The design of the app will be light and modern. 
+
+The app will need a login and 2 step authentication. It will have a admin section to manager the users and settings.
+
+The stack of the app will be:
+
+- In java
+- Maven
+- Spring boot
+- Embeded jetty
+
+I will edit the code in eclipse if needed.
+
+The goal is to run this app in a docker container.
+
+Can you build it ?

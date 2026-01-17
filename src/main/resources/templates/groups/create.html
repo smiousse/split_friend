@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Create Group - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Create New Group</h3>
+
+                    <form th:action="@{/groups/create}" th:object="${group}" method="post">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Group Name *</label>
+                            <input type="text" class="form-control" th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'"
+                                   id="name" th:field="*{name}" placeholder="e.g., Trip to Paris" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" th:field="*{description}"
+                                      rows="3" placeholder="Optional description"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="currency" class="form-label">Currency</label>
+                            <select class="form-select" id="currency" th:field="*{currency}">
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                                <option value="INR">INR - Indian Rupee</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Create Group</button>
+                            <a th:href="@{/groups}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

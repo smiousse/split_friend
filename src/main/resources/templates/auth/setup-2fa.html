@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Setup 2FA - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Setup Two-Factor Authentication</h3>
+
+                    <div th:replace="~{layout/main :: alerts}"></div>
+
+                    <div class="text-center mb-4">
+                        <p>Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)</p>
+                        <img th:src="${qrCode}" alt="QR Code" class="img-fluid mb-3" style="max-width: 200px;">
+                        <p class="text-muted small">
+                            Or enter this secret manually: <code th:text="${secret}"></code>
+                        </p>
+                    </div>
+
+                    <form th:action="@{/setup-2fa}" method="post">
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Verification Code</label>
+                            <input type="text" class="form-control" id="code" name="code"
+                                   placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}" required autofocus>
+                            <small class="text-muted">Enter the 6-digit code from your authenticator app</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Enable 2FA</button>
+                    </form>
+
+                    <hr>
+                    <p class="text-center">
+                        <a th:href="@{/dashboard}" class="text-muted">Skip for now</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

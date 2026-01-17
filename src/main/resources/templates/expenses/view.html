@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Expense Details - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4 class="mb-0" th:text="${expense.description}">Expense Description</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Amount:</strong> $<span th:text="${#numbers.formatDecimal(expense.amount, 1, 2)}">0.00</span></p>
+                            <p><strong>Paid by:</strong> <span th:text="${expense.paidBy.name}">User</span></p>
+                            <p><strong>Date:</strong> <span th:text="${#temporals.format(expense.expenseDate, 'MMMM d, yyyy')}">Date</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Group:</strong>
+                                <a th:href="@{/groups/{id}(id=${expense.group.id})}" th:text="${expense.group.name}">Group</a>
+                            </p>
+                            <p><strong>Split Type:</strong> <span th:text="${expense.splitType}">Equal</span></p>
+                            <p><strong>Created:</strong> <span th:text="${#temporals.format(expense.createdAt, 'MMM d, yyyy HH:mm')}">Date</span></p>
+                        </div>
+                    </div>
+
+                    <h5>Split Details</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Participant</th>
+                                    <th class="text-end">Amount</th>
+                                    <th th:if="${expense.splitType.name() == 'PERCENTAGE'}" class="text-end">Percentage</th>
+                                    <th th:if="${expense.splitType.name() == 'SHARES'}" class="text-end">Shares</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="split : ${expense.splits}">
+                                    <td th:text="${split.user.name}">User</td>
+                                    <td class="text-end">$<span th:text="${#numbers.formatDecimal(split.amount, 1, 2)}">0.00</span></td>
+                                    <td th:if="${expense.splitType.name() == 'PERCENTAGE'}" class="text-end"
+                                        th:text="${split.percentage + '%'}">0%</td>
+                                    <td th:if="${expense.splitType.name() == 'SHARES'}" class="text-end"
+                                        th:text="${split.shares}">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div th:if="${expense.billPath}" class="mt-4">
+                        <h5>Attached Bill</h5>
+                        <a th:href="@{'/uploads/' + ${expense.billPath}}" target="_blank" class="btn btn-outline-primary">
+                            View Bill
+                        </a>
+                    </div>
+
+                    <div class="mt-4">
+                        <a th:href="@{/groups/{id}(id=${expense.group.id})}" class="btn btn-outline-secondary">Back to Group</a>
+                        <form th:action="@{/expenses/{id}/delete(id=${expense.id})}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger"
+                                    onclick="return confirm('Delete this expense?')">Delete Expense</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

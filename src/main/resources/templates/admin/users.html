@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>User Management - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-people-fill fs-2 me-3 text-primary"></i>
+            <div>
+                <h2 class="mb-0">User Management</h2>
+                <p class="text-muted mb-0">Manage system users and permissions</p>
+            </div>
+        </div>
+        <div>
+            <a th:href="@{/admin/users/create}" class="btn btn-success">
+                <i class="bi bi-person-plus me-1"></i> Create User
+            </a>
+            <a th:href="@{/admin}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Admin
+            </a>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/admin/users}" method="get" class="row g-3">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" name="search" placeholder="Search by name or email"
+                               th:value="${search}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-hash me-1"></i>ID</th>
+                            <th><i class="bi bi-person me-1"></i>Name</th>
+                            <th><i class="bi bi-envelope me-1"></i>Email</th>
+                            <th><i class="bi bi-shield me-1"></i>Role</th>
+                            <th><i class="bi bi-toggle-on me-1"></i>Status</th>
+                            <th><i class="bi bi-shield-lock me-1"></i>2FA</th>
+                            <th><i class="bi bi-calendar me-1"></i>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}">
+                            <td th:text="${user.id}">1</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-circle primary me-2" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                    <span th:text="${user.name}">Name</span>
+                                </div>
+                            </td>
+                            <td th:text="${user.email}">email@example.com</td>
+                            <td>
+                                <span th:if="${user.role.name() == 'ADMIN'}" class="badge bg-danger">
+                                    <i class="bi bi-shield-fill me-1"></i>Admin
+                                </span>
+                                <span th:unless="${user.role.name() == 'ADMIN'}" class="badge bg-secondary">
+                                    <i class="bi bi-person me-1"></i>User
+                                </span>
+                            </td>
+                            <td>
+                                <span th:if="${user.enabled}" class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Active
+                                </span>
+                                <span th:unless="${user.enabled}" class="badge bg-warning text-dark">
+                                    <i class="bi bi-pause-circle me-1"></i>Disabled
+                                </span>
+                            </td>
+                            <td>
+                                <span th:if="${user.totpEnabled}" class="badge bg-info">
+                                    <i class="bi bi-shield-check me-1"></i>Enabled
+                                </span>
+                                <span th:unless="${user.totpEnabled}" class="badge bg-light text-dark">
+                                    <i class="bi bi-shield-x me-1"></i>Off
+                                </span>
+                            </td>
+                            <td th:text="${#temporals.format(user.createdAt, 'MMM d, yyyy')}">Date</td>
+                            <td>
+                                <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <form th:if="${user.enabled}" th:action="@{/admin/users/{id}/disable(id=${user.id})}"
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Disable user">
+                                        <i class="bi bi-pause-circle"></i>
+                                    </button>
+                                </form>
+                                <form th:unless="${user.enabled}" th:action="@{/admin/users/{id}/enable(id=${user.id})}"
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Enable user">
+                                        <i class="bi bi-play-circle"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${#lists.isEmpty(users)}" class="empty-state">
+                <i class="bi bi-people"></i>
+                <h5>No users found</h5>
+                <p>No users match your search criteria</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

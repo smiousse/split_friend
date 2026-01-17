@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>User Details - SplitFriend Admin</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>User Details</h2>
+        <a th:href="@{/admin/users}" class="btn btn-outline-secondary">Back to Users</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">User Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th>ID</th>
+                                <td th:text="${user.id}">1</td>
+                            </tr>
+                            <tr>
+                                <th>Name</th>
+                                <td th:text="${user.name}">Name</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td th:text="${user.email}">email@example.com</td>
+                            </tr>
+                            <tr>
+                                <th>Role</th>
+                                <td th:text="${user.role}">USER</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <span th:if="${user.enabled}" class="badge bg-success">Active</span>
+                                    <span th:unless="${user.enabled}" class="badge bg-warning">Disabled</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>2FA</th>
+                                <td>
+                                    <span th:if="${user.totpEnabled}" class="badge bg-info">Enabled</span>
+                                    <span th:unless="${user.totpEnabled}" class="badge bg-light text-dark">Disabled</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Created</th>
+                                <td th:text="${#temporals.format(user.createdAt, 'MMMM d, yyyy HH:mm')}">Date</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <!-- Change Role -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Change Role</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/users/{id}/role(id=${user.id})}" method="post">
+                        <div class="mb-3">
+                            <select class="form-select" name="role">
+                                <option th:each="role : ${roles}"
+                                        th:value="${role}"
+                                        th:text="${role}"
+                                        th:selected="${role == user.role}">Role</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Role</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Reset Password -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Reset Password</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/users/{id}/reset-password(id=${user.id})}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" name="newPassword"
+                                   minlength="6" required placeholder="Enter new password">
+                        </div>
+                        <button type="submit" class="btn btn-warning">Reset Password</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Danger Zone</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${user.totpEnabled}" class="mb-3">
+                        <form th:action="@{/admin/users/{id}/disable-2fa(id=${user.id})}" method="post">
+                            <button type="submit" class="btn btn-outline-warning"
+                                    onclick="return confirm('Disable 2FA for this user?')">
+                                Disable 2FA
+                            </button>
+                        </form>
+                    </div>
+
+                    <form th:if="${user.enabled}" th:action="@{/admin/users/{id}/disable(id=${user.id})}" method="post" class="mb-3">
+                        <button type="submit" class="btn btn-outline-warning">Disable Account</button>
+                    </form>
+                    <form th:unless="${user.enabled}" th:action="@{/admin/users/{id}/enable(id=${user.id})}" method="post" class="mb-3">
+                        <button type="submit" class="btn btn-outline-success">Enable Account</button>
+                    </form>
+
+                    <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post">
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this user? This cannot be undone.')">
+                            Delete User
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

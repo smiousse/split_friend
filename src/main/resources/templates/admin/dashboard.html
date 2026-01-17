@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Admin Dashboard - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <div class="d-flex align-items-center mb-4">
+        <i class="bi bi-shield-lock-fill fs-2 me-3 text-primary"></i>
+        <div>
+            <h2 class="mb-0">Admin Dashboard</h2>
+            <p class="text-muted mb-0">System overview and management</p>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="mb-4">
+        <a th:href="@{/admin/users}" class="btn btn-primary">
+            <i class="bi bi-people-fill me-1"></i> Manage Users
+        </a>
+        <a th:href="@{/admin/backup}" class="btn btn-success">
+            <i class="bi bi-database-fill-gear me-1"></i> Backup & Restore
+        </a>
+        <a th:href="@{/admin/settings}" class="btn btn-outline-secondary">
+            <i class="bi bi-gear-fill me-1"></i> Settings
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card admin-stat-card summary-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">Total Users</h6>
+                            <h2 th:text="${totalUsers}">0</h2>
+                            <small class="opacity-75">
+                                <i class="bi bi-check-circle me-1"></i>
+                                <span th:text="${activeUsers}">0</span> active
+                            </small>
+                        </div>
+                        <i class="bi bi-people stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card admin-stat-card summary-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">Total Groups</h6>
+                            <h2 th:text="${totalGroups}">0</h2>
+                            <small class="opacity-75">
+                                <i class="bi bi-collection me-1"></i> Active groups
+                            </small>
+                        </div>
+                        <i class="bi bi-people-fill stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card admin-stat-card summary-card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">Total Expenses</h6>
+                            <h2 th:text="${totalExpenses}">0</h2>
+                            <small class="opacity-75">
+                                <i class="bi bi-currency-dollar me-1"></i>
+                                $<span th:text="${#numbers.formatDecimal(totalExpensesAmount, 1, 2)}">0.00</span>
+                            </small>
+                        </div>
+                        <i class="bi bi-receipt stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card admin-stat-card summary-card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">Total Settlements</h6>
+                            <h2 th:text="${totalSettlements}">0</h2>
+                            <small class="opacity-75">
+                                <i class="bi bi-check2-all me-1"></i>
+                                $<span th:text="${#numbers.formatDecimal(totalSettledAmount, 1, 2)}">0.00</span>
+                            </small>
+                        </div>
+                        <i class="bi bi-cash-coin stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <i class="bi bi-cpu me-2"></i>
+                    <h5 class="mb-0">System Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <th><i class="bi bi-code-slash me-2 text-muted"></i>Java Version</th>
+                                <td th:text="${@environment.getProperty('java.version')}">17</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-box-seam me-2 text-muted"></i>Spring Boot</th>
+                                <td>3.2.0</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-database me-2 text-muted"></i>Database</th>
+                                <td>H2 (File-based)</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-hdd me-2 text-muted"></i>Server</th>
+                                <td>Embedded Jetty</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <i class="bi bi-lightning-charge me-2"></i>
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/admin/users/create}" class="btn btn-outline-success">
+                            <i class="bi bi-person-plus me-2"></i> Create New User
+                        </a>
+                        <a th:href="@{/admin/backup/download}" class="btn btn-outline-primary">
+                            <i class="bi bi-download me-2"></i> Download Backup
+                        </a>
+                        <a th:href="@{/h2-console}" target="_blank" class="btn btn-outline-secondary">
+                            <i class="bi bi-database me-2"></i> H2 Database Console
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Add Expense - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Add Expense to <span th:text="${group.name}">Group</span></h3>
+
+                    <form th:action="@{/expenses/add}" th:object="${expense}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" th:field="*{groupId}">
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="description" class="form-label">Description *</label>
+                                <input type="text" class="form-control" th:class="${#fields.hasErrors('description')} ? 'form-control is-invalid' : 'form-control'"
+                                       id="description" th:field="*{description}" placeholder="e.g., Dinner at restaurant" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="amount" class="form-label">Amount *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" th:text="${group.currency}">$</span>
+                                    <input type="number" step="0.01" min="0.01" class="form-control"
+                                           th:class="${#fields.hasErrors('amount')} ? 'form-control is-invalid' : 'form-control'"
+                                           id="amount" th:field="*{amount}" placeholder="0.00" required>
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="paidById" class="form-label">Paid by *</label>
+                                <select class="form-select" id="paidById" th:field="*{paidById}" required>
+                                    <option th:each="member : ${members}"
+                                            th:value="${member.id}"
+                                            th:text="${member.name}"
+                                            th:selected="${member.id == expense.paidById}">Member</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="expenseDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="expenseDate" name="expenseDate"
+                                       th:value="${expense.expenseDate != null ? #temporals.format(expense.expenseDate, 'yyyy-MM-dd') : #temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="splitType" class="form-label">Split Type *</label>
+                            <select class="form-select" id="splitType" th:field="*{splitType}" onchange="updateSplitUI()">
+                                <option value="EQUAL">Equal - Split equally among selected members</option>
+                                <option value="EXACT">Exact amounts - Enter specific amounts per person</option>
+                                <option value="PERCENTAGE">Percentage - Enter percentage per person</option>
+                                <option value="SHARES">Shares - Enter share weights per person</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Split among *</label>
+                            <div class="card">
+                                <div class="card-body" id="participantsList">
+                                    <div th:each="member : ${members}" class="form-check mb-2 participant-row">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-4">
+                                                <input class="form-check-input" type="checkbox"
+                                                       th:id="'participant_' + ${member.id}"
+                                                       name="participantIds"
+                                                       th:value="${member.id}" checked>
+                                                <label class="form-check-label" th:for="'participant_' + ${member.id}"
+                                                       th:text="${member.name}">Member</label>
+                                            </div>
+                                            <div class="col-md-8 split-input-container" style="display:none;">
+                                                <div class="exact-input" style="display:none;">
+                                                    <div class="input-group input-group-sm">
+                                                        <span class="input-group-text">$</span>
+                                                        <input type="number" step="0.01" min="0" class="form-control"
+                                                               th:name="'exactAmount_' + ${member.id}" placeholder="0.00">
+                                                    </div>
+                                                </div>
+                                                <div class="percentage-input" style="display:none;">
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" step="0.01" min="0" max="100" class="form-control"
+                                                               th:name="'percentage_' + ${member.id}" placeholder="0">
+                                                        <span class="input-group-text">%</span>
+                                                    </div>
+                                                </div>
+                                                <div class="shares-input" style="display:none;">
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" step="1" min="0" class="form-control"
+                                                               th:name="'shares_' + ${member.id}" placeholder="1" value="1">
+                                                        <span class="input-group-text">shares</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bill" class="form-label">Bill/Receipt (optional)</label>
+                            <input type="file" class="form-control" id="bill" name="bill" accept="image/*,.pdf">
+                            <small class="text-muted">Upload a photo of the bill (max 10MB)</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Add Expense</button>
+                            <a th:href="@{/groups/{id}(id=${group.id})}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+<script>
+function updateSplitUI() {
+    const splitType = document.getElementById('splitType').value;
+    const containers = document.querySelectorAll('.split-input-container');
+    const exactInputs = document.querySelectorAll('.exact-input');
+    const percentageInputs = document.querySelectorAll('.percentage-input');
+    const sharesInputs = document.querySelectorAll('.shares-input');
+
+    // Hide all first
+    containers.forEach(c => c.style.display = 'none');
+    exactInputs.forEach(i => i.style.display = 'none');
+    percentageInputs.forEach(i => i.style.display = 'none');
+    sharesInputs.forEach(i => i.style.display = 'none');
+
+    if (splitType === 'EQUAL') {
+        return;
+    }
+
+    containers.forEach(c => c.style.display = 'block');
+
+    if (splitType === 'EXACT') {
+        exactInputs.forEach(i => i.style.display = 'block');
+    } else if (splitType === 'PERCENTAGE') {
+        percentageInputs.forEach(i => i.style.display = 'block');
+    } else if (splitType === 'SHARES') {
+        sharesInputs.forEach(i => i.style.display = 'block');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateSplitUI);
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Profile - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <h2 class="mb-4">Profile Settings</h2>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/profile/update}" method="post">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" th:value="${user.email}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" th:value="${user.name}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/profile/change-password}" method="post">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Two-Factor Authentication</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${user.totpEnabled}">
+                        <p class="text-success"><strong>2FA is enabled</strong></p>
+                        <form th:action="@{/disable-2fa}" method="post">
+                            <div class="mb-3">
+                                <label for="code" class="form-label">Enter code to disable 2FA</label>
+                                <input type="text" class="form-control" id="code" name="code"
+                                       placeholder="Enter 6-digit code" maxlength="6" required>
+                            </div>
+                            <button type="submit" class="btn btn-danger">Disable 2FA</button>
+                        </form>
+                    </div>
+                    <div th:unless="${user.totpEnabled}">
+                        <p class="text-muted">2FA is not enabled</p>
+                        <a th:href="@{/setup-2fa}" class="btn btn-primary">Setup 2FA</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

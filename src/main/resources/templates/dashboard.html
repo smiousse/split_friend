@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/main :: head}">
+    <title>Dashboard - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="d-flex align-items-center">
+                <i class="bi bi-speedometer2 me-3 text-primary"></i>
+                Welcome, <span th:text="${user.name}" class="ms-1">User</span>!
+            </h2>
+            <p class="text-muted">Here's your financial summary across all groups</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card summary-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">
+                                <i class="bi bi-arrow-down-circle me-1"></i> You are owed
+                            </h6>
+                            <h3 class="card-title mb-0">
+                                $<span th:text="${#numbers.formatDecimal(totalOwed, 1, 2)}">0.00</span>
+                            </h3>
+                        </div>
+                        <i class="bi bi-cash-stack fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card summary-card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">
+                                <i class="bi bi-arrow-up-circle me-1"></i> You owe
+                            </h6>
+                            <h3 class="card-title mb-0">
+                                $<span th:text="${#numbers.formatDecimal(totalOwing, 1, 2)}">0.00</span>
+                            </h3>
+                        </div>
+                        <i class="bi bi-credit-card fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div th:class="${netBalance >= 0} ? 'card summary-card bg-primary text-white' : 'card summary-card bg-warning text-dark'">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">
+                                <i class="bi bi-graph-up me-1"></i> Net Balance
+                            </h6>
+                            <h3 class="card-title mb-0">
+                                $<span th:text="${#numbers.formatDecimal(netBalance, 1, 2)}">0.00</span>
+                            </h3>
+                        </div>
+                        <i class="bi bi-wallet2 fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Groups Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="d-flex align-items-center mb-0">
+            <i class="bi bi-people me-2"></i> Your Groups
+        </h4>
+        <a th:href="@{/groups/create}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Create Group
+        </a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(groups)}" class="card">
+        <div class="card-body empty-state">
+            <i class="bi bi-people"></i>
+            <h5>No groups yet</h5>
+            <p>Create your first group to start tracking shared expenses</p>
+            <a th:href="@{/groups/create}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Create your first group
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div th:each="group : ${groups}" class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-2">
+                        <div class="icon-circle primary me-3">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-1" th:text="${group.name}">Group Name</h5>
+                            <p class="card-text text-muted small mb-2" th:text="${group.description} ?: 'No description'">Description</p>
+                        </div>
+                    </div>
+                    <div th:with="balance=${groupBalances.get(group.id)}">
+                        <span th:if="${balance > 0}" class="balance-pill positive">
+                            <i class="bi bi-arrow-down-short me-1"></i>
+                            Owed $<span th:text="${#numbers.formatDecimal(balance, 1, 2)}">0.00</span>
+                        </span>
+                        <span th:if="${balance < 0}" class="balance-pill negative">
+                            <i class="bi bi-arrow-up-short me-1"></i>
+                            Owe $<span th:text="${#numbers.formatDecimal(balance.abs(), 1, 2)}">0.00</span>
+                        </span>
+                        <span th:if="${balance == 0}" class="balance-pill neutral">
+                            <i class="bi bi-check-circle me-1"></i> Settled up
+                        </span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <a th:href="@{/groups/{id}(id=${group.id})}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-eye me-1"></i> View
+                    </a>
+                    <a th:href="@{/expenses/add(groupId=${group.id})}" class="btn btn-success btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i> Add Expense
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:/app/data/splitfriend;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    password: ${DB_PASSWORD}
+
+  h2:
+    console:
+      settings:
+        web-allow-others: true
+
+  thymeleaf:
+    cache: true
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+app:
+  upload:
+    path: /app/uploads
+  backup:
+    directory: /app/backups
+    max-files: ${BACKUP_MAX_FILES:10}
+    auto-backup:
+      enabled: ${BACKUP_AUTO_ENABLED:true}
+      cron: ${BACKUP_CRON:0 0 2 * * ?}

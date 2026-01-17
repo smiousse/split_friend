@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Groups - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Your Groups</h2>
+        <a th:href="@{/groups/create}" class="btn btn-primary">Create New Group</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(groups)}" class="alert alert-info">
+        You haven't joined any groups yet. Create your first group to start splitting expenses!
+    </div>
+
+    <div class="row">
+        <div th:each="group : ${groups}" class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${group.name}">Group Name</h5>
+                    <p class="card-text text-muted small" th:text="${group.description} ?: 'No description'"></p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Currency: <span th:text="${group.currency}">USD</span>
+                        </small>
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a th:href="@{/groups/{id}(id=${group.id})}" class="btn btn-primary btn-sm">View Details</a>
+                    <a th:href="@{/expenses/add(groupId=${group.id})}" class="btn btn-outline-success btn-sm">Add Expense</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

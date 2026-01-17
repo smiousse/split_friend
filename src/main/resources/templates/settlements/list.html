@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Settlements - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Settlements</h2>
+            <p class="text-muted">Group: <span th:text="${group.name}">Group Name</span></p>
+        </div>
+        <a th:href="@{/groups/{id}(id=${group.id})}" class="btn btn-outline-secondary">Back to Group</a>
+    </div>
+
+    <div class="row">
+        <!-- Simplified Debts -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Suggested Settlements</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(simplifiedDebts)}" class="text-center text-muted py-3">
+                        Everyone is settled up!
+                    </div>
+                    <ul th:unless="${#lists.isEmpty(simplifiedDebts)}" class="list-group list-group-flush">
+                        <li th:each="debt : ${simplifiedDebts}" class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong th:text="${debt.fromUserName}">User</strong>
+                                    <span class="text-muted">pays</span>
+                                    <strong th:text="${debt.toUserName}">User</strong>
+                                </div>
+                                <span class="badge bg-warning text-dark">
+                                    $<span th:text="${#numbers.formatDecimal(debt.amount, 1, 2)}">0.00</span>
+                                </span>
+                            </div>
+                            <form th:if="${debt.fromUserId == currentUserId}"
+                                  th:action="@{/settlements/add}" method="post" class="mt-2">
+                                <input type="hidden" name="groupId" th:value="${group.id}">
+                                <input type="hidden" name="fromUserId" th:value="${debt.fromUserId}">
+                                <input type="hidden" name="toUserId" th:value="${debt.toUserId}">
+                                <input type="hidden" name="amount" th:value="${debt.amount}">
+                                <button type="submit" class="btn btn-sm btn-success w-100">Settle Up</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Current Balances -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Current Balances</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li th:each="balance : ${balances}" class="list-group-item d-flex justify-content-between">
+                            <span th:text="${balance.userName}">User</span>
+                            <span th:if="${balance.positive}" class="text-success">
+                                +$<span th:text="${#numbers.formatDecimal(balance.balance, 1, 2)}">0.00</span>
+                            </span>
+                            <span th:if="${balance.negative}" class="text-danger">
+                                -$<span th:text="${#numbers.formatDecimal(balance.absoluteBalance, 1, 2)}">0.00</span>
+                            </span>
+                            <span th:if="${balance.zero}" class="text-muted">$0.00</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Record Settlement & History -->
+        <div class="col-lg-8">
+            <!-- Record New Settlement -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Record a Payment</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/settlements/add}" method="post" class="row g-3">
+                        <input type="hidden" name="groupId" th:value="${group.id}">
+                        <div class="col-md-4">
+                            <label class="form-label">Who paid</label>
+                            <select class="form-select" name="fromUserId" required>
+                                <option value="">Select...</option>
+                                <option th:each="member : ${members}"
+                                        th:value="${member.id}"
+                                        th:text="${member.name}">Member</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Paid to</label>
+                            <select class="form-select" name="toUserId" required>
+                                <option value="">Select...</option>
+                                <option th:each="member : ${members}"
+                                        th:value="${member.id}"
+                                        th:text="${member.name}">Member</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" min="0.01" class="form-control"
+                                       name="amount" placeholder="0.00" required>
+                            </div>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Settlement History -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Settlement History</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(settlements)}" class="text-center text-muted py-4">
+                        No settlements recorded yet.
+                    </div>
+                    <div th:unless="${#lists.isEmpty(settlements)}" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th class="text-end">Amount</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="settlement : ${settlements}">
+                                    <td th:text="${#temporals.format(settlement.settledAt, 'MMM d, yyyy')}">Date</td>
+                                    <td th:text="${settlement.fromUser.name}">User</td>
+                                    <td th:text="${settlement.toUser.name}">User</td>
+                                    <td class="text-end">$<span th:text="${#numbers.formatDecimal(settlement.amount, 1, 2)}">0.00</span></td>
+                                    <td>
+                                        <form th:action="@{/settlements/{id}/delete(id=${settlement.id})}" method="post" class="d-inline">
+                                            <input type="hidden" name="groupId" th:value="${group.id}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Delete this settlement?')">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>
