@@ -1,5 +1,91 @@
 // SplitFriend JavaScript
 
+// PWA Install Prompt
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', function(e) {
+    console.log('beforeinstallprompt fired');
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show install button if it exists
+    var installBtn = document.getElementById('pwa-install-btn');
+    if (installBtn) {
+        installBtn.style.display = 'block';
+    }
+    // Show toast notification
+    showInstallToast();
+});
+
+window.addEventListener('appinstalled', function() {
+    console.log('PWA was installed');
+    deferredPrompt = null;
+    var installBtn = document.getElementById('pwa-install-btn');
+    if (installBtn) {
+        installBtn.style.display = 'none';
+    }
+});
+
+function installPWA() {
+    if (!deferredPrompt) {
+        // Show manual instructions
+        showManualInstallInstructions();
+        return;
+    }
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(choiceResult) {
+        if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+        }
+        deferredPrompt = null;
+    });
+}
+
+function showInstallToast() {
+    var toast = document.createElement('div');
+    toast.className = 'toast-container position-fixed bottom-0 start-50 translate-middle-x p-3';
+    toast.style.zIndex = '1100';
+    toast.innerHTML =
+        '<div class="toast show align-items-center text-white bg-dark border-0" role="alert">' +
+        '  <div class="d-flex">' +
+        '    <div class="toast-body d-flex align-items-center">' +
+        '      <i class="bi bi-download me-2"></i> Install SplitFriend app?' +
+        '      <button class="btn btn-sm btn-success ms-3" onclick="installPWA(); this.closest(\'.toast-container\').remove();">Install</button>' +
+        '    </div>' +
+        '    <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.closest(\'.toast-container\').remove();"></button>' +
+        '  </div>' +
+        '</div>';
+    document.body.appendChild(toast);
+}
+
+function showManualInstallInstructions() {
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    var isAndroid = /Android/.test(navigator.userAgent);
+    var message = '';
+
+    if (isIOS) {
+        message = 'To install: tap the Share button, then "Add to Home Screen"';
+    } else if (isAndroid) {
+        message = 'To install: tap the menu (3 dots), then "Add to Home Screen" or "Install app"';
+    } else {
+        message = 'To install: look for the install icon in your browser\'s address bar, or use browser menu';
+    }
+
+    showToast(message);
+}
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registered with scope:', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('ServiceWorker registration failed:', error);
+            });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize theme
     initializeTheme();

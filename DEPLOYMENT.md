@@ -256,6 +256,34 @@ docker compose -f docker-compose_portainer.yml up -d
 
 After resetting, the app will create a new admin user with the credentials from your `ADMIN_PASSWORD` environment variable (default email: `admin@splitfriend.local`).
 
+### Login works but immediately redirects back to login page
+
+This happens when accessing the app via HTTP but the session cookie is configured for HTTPS only.
+
+**Symptoms:**
+- You enter correct credentials
+- No error message appears
+- You're redirected back to the login page
+- Logs show successful authentication but subsequent requests are anonymous
+
+**Cause:**
+The Docker profile (`application-docker.yml`) has `server.servlet.session.cookie.secure: true`, which means the browser only sends the session cookie over HTTPS connections.
+
+**Fix for HTTP access:**
+
+Edit `src/main/resources/application-docker.yml` and set:
+```yaml
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false
+```
+
+**Fix for HTTPS (recommended for production):**
+
+Keep `secure: true` and put the app behind a reverse proxy (nginx, Traefik, Caddy) with SSL/TLS enabled.
+
 ### Port conflict
 Change the host port in the stack/container configuration:
 ```yaml
