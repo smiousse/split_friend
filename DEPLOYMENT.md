@@ -191,9 +191,70 @@ docker logs splitfriend
 - Check if port 8080 is available
 - Verify environment variables are set correctly
 
-### Database issues
-- Data persists in the `splitfriend_data` volume
-- To reset: delete the volume (warning: loses all data)
+### "manifest unknown" error when pulling image
+
+This error means the image doesn't exist in the container registry.
+
+**Option 1: Build instead of pull (easiest)**
+
+Modify your compose file to only build from source:
+
+```yaml
+services:
+  splitfriend:
+    build:
+      context: https://github.com/smiousse/split_friend.git
+      dockerfile: Dockerfile
+    # Remove or comment out the image line:
+    # image: ghcr.io/smiousse/split_friend:latest
+```
+
+**Option 2: Push the image to ghcr.io first**
+
+On your local machine where you have the code:
+
+```bash
+# Login to GitHub Container Registry
+echo $GITHUB_TOKEN | docker login ghcr.io -u smiousse --password-stdin
+
+# Build the image
+docker build -t ghcr.io/smiousse/split_friend:latest .
+
+# Push it
+docker push ghcr.io/smiousse/split_friend:latest
+```
+
+### Database reset / Can't login with configured credentials
+
+If the database already exists with old credentials, you need to reset it.
+
+**Option 1: Remove just the data volume (CLI)**
+```bash
+# Stop the container
+docker stop split_friend
+
+# Remove the data volume (this deletes the database)
+docker volume rm splitfriend_data
+
+# Restart the container (will recreate the volume and admin user)
+docker start split_friend
+```
+
+**Option 2: Full reset with docker compose**
+```bash
+# Stop and remove the container and all its volumes
+docker compose -f docker-compose_portainer.yml down -v
+
+# Start fresh
+docker compose -f docker-compose_portainer.yml up -d
+```
+
+**Option 3: Via Portainer UI**
+1. Go to **Containers** → Stop `split_friend`
+2. Go to **Volumes** → Find `splitfriend_data` → Delete it
+3. Go back to **Containers** → Start `split_friend`
+
+After resetting, the app will create a new admin user with the credentials from your `ADMIN_PASSWORD` environment variable (default email: `admin@splitfriend.local`).
 
 ### Port conflict
 Change the host port in the stack/container configuration:

@@ -8,12 +8,11 @@ services:
     network_mode: host
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - DB_PASSWORD=${DB_PASSWORD:-splitfriend_secret}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - DB_PASSWORD=splitfriend_secret
+      - ADMIN_PASSWORD=admin123
       - SERVER_PORT=9090
-      - BACKUP_AUTO_ENABLED=${BACKUP_AUTO_ENABLED:-true}
-      - BACKUP_MAX_FILES=${BACKUP_MAX_FILES:-10}
-      - BACKUP_CRON=${BACKUP_CRON:-0 0 2 * * ?}
+      - BACKUP_AUTO_ENABLED=true
+      - BACKUP_MAX_FILES=10
       - BACKUP_CRON=0 0 2 * * ?
     volumes:
       - splitfriend_data:/app/data
