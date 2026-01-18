@@ -1,0 +1,33 @@
+services:
+  splitfriend:
+    image: ghcr.io/smiousse/split_friend:latest  # Or build from source
+    build:
+      context: https://github.com/smiousse/split_friend.git
+      dockerfile: Dockerfile
+    container_name: split_friend
+    network_mode: host
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_PASSWORD=${DB_PASSWORD:-splitfriend_secret}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - SERVER_PORT=9090
+      - BACKUP_AUTO_ENABLED=${BACKUP_AUTO_ENABLED:-true}
+      - BACKUP_MAX_FILES=${BACKUP_MAX_FILES:-10}
+      - BACKUP_CRON=${BACKUP_CRON:-0 0 2 * * ?}
+      - BACKUP_CRON=0 0 2 * * ?
+    volumes:
+      - splitfriend_data:/app/data
+      - splitfriend_uploads:/app/uploads
+      - splitfriend_backups:/app/backups
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  splitfriend_data:
+  splitfriend_uploads:
+  splitfriend_backups:

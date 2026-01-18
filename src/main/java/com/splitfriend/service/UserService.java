@@ -3,6 +3,8 @@ package com.splitfriend.service;
 import com.splitfriend.model.User;
 import com.splitfriend.model.enums.Role;
 import com.splitfriend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import java.util.Optional;
 @Service
 @Transactional
 public class UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -32,7 +36,11 @@ public class UserService {
 
     @PostConstruct
     public void initDefaultAdmin() {
+        log.info("Checking for default admin user with email: {}", adminEmail);
+        log.debug("Admin password configured (length={})", adminPassword != null ? adminPassword.length() : 0);
+
         if (!userRepository.existsByEmail(adminEmail)) {
+            log.info("Default admin user not found, creating new admin account: {}", adminEmail);
             User admin = User.builder()
                     .email(adminEmail)
                     .passwordHash(passwordEncoder.encode(adminPassword))
@@ -41,6 +49,14 @@ public class UserService {
                     .enabled(true)
                     .build();
             userRepository.save(admin);
+            log.info("Default admin user created successfully: {}", adminEmail);
+        } else {
+            log.info("Default admin user already exists: {}", adminEmail);
+            // Log existing admin details for debugging
+            userRepository.findByEmail(adminEmail).ifPresent(existingAdmin -> {
+                log.info("Existing admin - email: {}, enabled: {}, role: {}",
+                        existingAdmin.getEmail(), existingAdmin.getEnabled(), existingAdmin.getRole());
+            });
         }
     }
 

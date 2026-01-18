@@ -48,6 +48,14 @@ server:
         http-only: true
         secure: false
 
+logging:
+  level:
+    com.splitfriend.security: DEBUG
+    com.splitfriend.service.UserService: DEBUG
+    org.springframework.security: INFO
+    org.springframework.security.authentication: DEBUG
+    org.springframework.security.web.authentication: DEBUG
+
 app:
   currency:
     default: CAD
