@@ -10,11 +10,11 @@
     <div th:replace="~{layout/main :: alerts}"></div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Your Groups</h2>
-        <a th:href="@{/groups/create}" class="btn btn-primary">Create New Group</a>
+        <h2 th:text="#{groups.title}">Your Groups</h2>
+        <a th:href="@{/groups/create}" class="btn btn-primary" th:text="#{groups.createNew}">Create New Group</a>
     </div>
 
-    <div th:if="${#lists.isEmpty(groups)}" class="alert alert-info">
+    <div th:if="${#lists.isEmpty(groups)}" class="alert alert-info" th:text="#{groups.noGroupsYet}">
         You haven't joined any groups yet. Create your first group to start splitting expenses!
     </div>
 
@@ -23,16 +23,16 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${group.name}">Group Name</h5>
-                    <p class="card-text text-muted small" th:text="${group.description} ?: 'No description'"></p>
+                    <p class="card-text text-muted small" th:text="${group.description} ?: #{common.noDescription}"></p>
                     <p class="card-text">
                         <small class="text-muted">
-                            Currency: <span th:text="${group.currency}">USD</span>
+                            <span th:text="#{common.currency}">Currency</span>: <span th:text="${group.currency}">USD</span>
                         </small>
                     </p>
                 </div>
                 <div class="card-footer bg-transparent border-top-0">
-                    <a th:href="@{/groups/{id}(id=${group.id})}" class="btn btn-primary btn-sm">View Details</a>
-                    <a th:href="@{/expenses/add(groupId=${group.id})}" class="btn btn-outline-success btn-sm">Add Expense</a>
+                    <a th:href="@{/groups/{id}(id=${group.id})}" class="btn btn-primary btn-sm" th:text="#{groups.viewDetails}">View Details</a>
+                    <a th:href="@{/expenses/add(groupId=${group.id})}" class="btn btn-outline-success btn-sm" th:text="#{dashboard.addExpense}">Add Expense</a>
                 </div>
             </div>
         </div>

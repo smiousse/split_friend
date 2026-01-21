@@ -9,25 +9,25 @@
 <div class="container mt-4">
     <div th:replace="~{layout/main :: alerts}"></div>
 
-    <h2 class="mb-4">Profile Settings</h2>
+    <h2 class="mb-4" th:text="#{profile.title}">Profile Settings</h2>
 
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Profile Information</h5>
+                    <h5 class="mb-0" th:text="#{profile.information}">Profile Information</h5>
                 </div>
                 <div class="card-body">
                     <form th:action="@{/profile/update}" method="post">
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
+                            <label for="email" class="form-label" th:text="#{profile.email}">Email</label>
                             <input type="email" class="form-control" id="email" th:value="${user.email}" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="name" class="form-label">Name</label>
+                            <label for="name" class="form-label" th:text="#{profile.name}">Name</label>
                             <input type="text" class="form-control" id="name" name="name" th:value="${user.name}" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                        <button type="submit" class="btn btn-primary" th:text="#{profile.updateProfile}">Update Profile</button>
                     </form>
                 </div>
             </div>
@@ -36,23 +36,23 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Change Password</h5>
+                    <h5 class="mb-0" th:text="#{profile.changePassword}">Change Password</h5>
                 </div>
                 <div class="card-body">
                     <form th:action="@{/profile/change-password}" method="post">
                         <div class="mb-3">
-                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <label for="currentPassword" class="form-label" th:text="#{profile.currentPassword}">Current Password</label>
                             <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
                         </div>
                         <div class="mb-3">
-                            <label for="newPassword" class="form-label">New Password</label>
+                            <label for="newPassword" class="form-label" th:text="#{profile.newPassword}">New Password</label>
                             <input type="password" class="form-control" id="newPassword" name="newPassword" required>
                         </div>
                         <div class="mb-3">
-                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <label for="confirmPassword" class="form-label" th:text="#{profile.confirmPassword}">Confirm New Password</label>
                             <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Change Password</button>
+                        <button type="submit" class="btn btn-primary" th:text="#{profile.updatePassword}">Change Password</button>
                     </form>
                 </div>
             </div>
@@ -63,24 +63,44 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Two-Factor Authentication</h5>
+                    <h5 class="mb-0" th:text="#{profile.2fa.title}">Two-Factor Authentication</h5>
                 </div>
                 <div class="card-body">
                     <div th:if="${user.totpEnabled}">
-                        <p class="text-success"><strong>2FA is enabled</strong></p>
+                        <p class="text-success"><strong th:text="#{auth.2fa.enabled}">2FA is enabled</strong></p>
                         <form th:action="@{/disable-2fa}" method="post">
                             <div class="mb-3">
-                                <label for="code" class="form-label">Enter code to disable 2FA</label>
+                                <label for="code" class="form-label" th:text="#{auth.2fa.enterCodeToDisable}">Enter code to disable 2FA</label>
                                 <input type="text" class="form-control" id="code" name="code"
-                                       placeholder="Enter 6-digit code" maxlength="6" required>
+                                       th:placeholder="#{auth.2fa.enterCode}" maxlength="6" required>
                             </div>
-                            <button type="submit" class="btn btn-danger">Disable 2FA</button>
+                            <button type="submit" class="btn btn-danger" th:text="#{auth.2fa.disable}">Disable 2FA</button>
                         </form>
                     </div>
                     <div th:unless="${user.totpEnabled}">
-                        <p class="text-muted">2FA is not enabled</p>
-                        <a th:href="@{/setup-2fa}" class="btn btn-primary">Setup 2FA</a>
+                        <p class="text-muted" th:text="#{auth.2fa.notEnabled}">2FA is not enabled</p>
+                        <a th:href="@{/setup-2fa}" class="btn btn-primary" th:text="#{auth.2fa.setup}">Setup 2FA</a>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0" th:text="#{profile.language.title}">Language</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/profile/language}" method="post">
+                        <div class="mb-3">
+                            <label for="language" class="form-label" th:text="#{profile.language.select}">Select Language</label>
+                            <select class="form-select" id="language" name="language">
+                                <option value="en" th:selected="${user.language == 'en'}" th:text="#{profile.language.en}">English</option>
+                                <option value="fr" th:selected="${user.language == 'fr'}" th:text="#{profile.language.fr}">French</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" th:text="#{profile.language.save}">Save Language</button>
+                    </form>
                 </div>
             </div>
         </div>

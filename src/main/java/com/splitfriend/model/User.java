@@ -56,6 +56,10 @@ public class User {
     @Builder.Default
     private Boolean enabled = true;
 
+    @Column(name = "language", length = 5)
+    @Builder.Default
+    private String language = "en";
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

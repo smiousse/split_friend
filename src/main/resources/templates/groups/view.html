@@ -17,9 +17,9 @@
             <span class="badge bg-secondary" th:text="${group.currency}">USD</span>
         </div>
         <div class="btn-group">
-            <a th:href="@{/expenses/add(groupId=${group.id})}" class="btn btn-success">Add Expense</a>
-            <a th:href="@{/settlements(groupId=${group.id})}" class="btn btn-outline-primary">Settlements</a>
-            <a th:href="@{/groups/{id}/edit(id=${group.id})}" class="btn btn-outline-secondary">Edit</a>
+            <a th:href="@{/expenses/add(groupId=${group.id})}" class="btn btn-success" th:text="#{group.view.addExpense}">Add Expense</a>
+            <a th:href="@{/settlements(groupId=${group.id})}" class="btn btn-outline-primary" th:text="#{group.view.settlements}">Settlements</a>
+            <a th:href="@{/groups/{id}/edit(id=${group.id})}" class="btn btn-outline-secondary" th:text="#{group.view.edit}">Edit</a>
         </div>
     </div>
 
@@ -28,10 +28,10 @@
         <div class="col-lg-4 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Balances</h5>
+                    <h5 class="mb-0" th:text="#{group.view.balances}">Balances</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted mb-3">Total expenses: $<span th:text="${#numbers.formatDecimal(totalExpenses, 1, 2)}">0.00</span></p>
+                    <p class="text-muted mb-3"><span th:text="#{group.view.totalExpenses}">Total expenses</span>: $<span th:text="${#numbers.formatDecimal(totalExpenses, 1, 2)}">0.00</span></p>
                     <ul class="list-group list-group-flush">
                         <li th:each="balance : ${balances}" class="list-group-item d-flex justify-content-between align-items-center">
                             <span th:text="${balance.userName}">User</span>
@@ -50,13 +50,13 @@
             <!-- Simplified Debts -->
             <div class="card mt-4" th:if="${!#lists.isEmpty(debts)}">
                 <div class="card-header">
-                    <h5 class="mb-0">Who Owes Whom</h5>
+                    <h5 class="mb-0" th:text="#{group.view.whoOwesWhom}">Who Owes Whom</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         <li th:each="debt : ${debts}" class="list-group-item">
                             <strong th:text="${debt.fromUserName}">User A</strong>
-                            owes
+                            <span th:text="#{group.view.owes}">owes</span>
                             <strong th:text="${debt.toUserName}">User B</strong>
                             <span class="float-end badge bg-warning text-dark">
                                 $<span th:text="${#numbers.formatDecimal(debt.amount, 1, 2)}">0.00</span>
@@ -72,8 +72,8 @@
             <!-- Members -->
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Members</h5>
-                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+                    <h5 class="mb-0" th:text="#{group.view.members}">Members</h5>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal" th:text="#{group.view.addMember}">
                         Add Member
                     </button>
                 </div>
@@ -89,7 +89,7 @@
                                       th:action="@{/groups/{gid}/remove-member/{uid}(gid=${group.id}, uid=${member.user.id})}"
                                       method="post" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Remove this member?')">Remove</button>
+                                            th:attr="onclick=|return confirm('#{group.view.removeMemberConfirm}')|" th:text="#{group.view.removeMember}">Remove</button>
                                 </form>
                             </div>
                         </div>
@@ -100,21 +100,21 @@
             <!-- Recent Expenses -->
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Expenses</h5>
-                    <a th:href="@{/expenses/export(groupId=${group.id})}" class="btn btn-sm btn-outline-secondary">Export CSV</a>
+                    <h5 class="mb-0" th:text="#{group.view.expenses}">Expenses</h5>
+                    <a th:href="@{/expenses/export(groupId=${group.id})}" class="btn btn-sm btn-outline-secondary" th:text="#{group.view.exportCsv}">Export CSV</a>
                 </div>
                 <div class="card-body">
                     <div th:if="${#lists.isEmpty(group.expenses)}" class="text-center text-muted py-4">
-                        No expenses yet. <a th:href="@{/expenses/add(groupId=${group.id})}">Add your first expense</a>.
+                        <span th:text="#{group.view.noExpenses}">No expenses yet.</span> <a th:href="@{/expenses/add(groupId=${group.id})}" th:text="#{group.view.addFirstExpense}">Add your first expense</a>.
                     </div>
                     <div class="table-responsive" th:unless="${#lists.isEmpty(group.expenses)}">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Paid by</th>
-                                    <th class="text-end">Amount</th>
+                                    <th th:text="#{expense.table.date}">Date</th>
+                                    <th th:text="#{expense.table.description}">Description</th>
+                                    <th th:text="#{expense.table.paidBy}">Paid by</th>
+                                    <th class="text-end" th:text="#{expense.table.amount}">Amount</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -129,7 +129,7 @@
                                     <td>
                                         <form th:action="@{/expenses/{id}/delete(id=${expense.id})}" method="post" class="d-inline">
                                             <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Delete this expense?')">Delete</button>
+                                                    th:attr="onclick=|return confirm('#{expense.deleteExpenseConfirm}')|" th:text="#{expense.deleteExpense}">Delete</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -146,21 +146,21 @@
         <div class="col">
             <div class="card border-danger">
                 <div class="card-body">
-                    <h5 class="card-title text-danger">Danger Zone</h5>
+                    <h5 class="card-title text-danger" th:text="#{group.view.dangerZone}">Danger Zone</h5>
                     <div th:if="${group.createdBy.id == currentUserId}">
-                        <p>As the group creator, you can delete this group. This action cannot be undone.</p>
+                        <p th:text="#{group.view.deleteGroupDesc}">As the group creator, you can delete this group. This action cannot be undone.</p>
                         <form th:action="@{/groups/{id}/delete(id=${group.id})}" method="post" class="d-inline">
                             <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('Are you sure you want to delete this group? This cannot be undone.')">
+                                    th:attr="onclick=|return confirm('#{group.view.deleteGroupConfirm}')|" th:text="#{group.view.deleteGroup}">
                                 Delete Group
                             </button>
                         </form>
                     </div>
                     <div th:unless="${group.createdBy.id == currentUserId}">
-                        <p>Leave this group to stop seeing it in your dashboard.</p>
+                        <p th:text="#{group.view.leaveGroupDesc}">Leave this group to stop seeing it in your dashboard.</p>
                         <form th:action="@{/groups/{id}/leave(id=${group.id})}" method="post" class="d-inline">
                             <button type="submit" class="btn btn-warning"
-                                    onclick="return confirm('Are you sure you want to leave this group?')">
+                                    th:attr="onclick=|return confirm('#{group.view.leaveGroupConfirm}')|" th:text="#{group.view.leaveGroup}">
                                 Leave Group
                             </button>
                         </form>
@@ -177,20 +177,20 @@
         <div class="modal-content">
             <form th:action="@{/groups/{id}/add-member(id=${group.id})}" method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Member</h5>
+                    <h5 class="modal-title" th:text="#{group.addMember.title}">Add Member</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email Address</label>
+                        <label for="email" class="form-label" th:text="#{group.addMember.emailLabel}">Email Address</label>
                         <input type="email" class="form-control" id="email" name="email"
-                               placeholder="Enter member's email" required>
-                        <small class="text-muted">The user must already have a SplitFriend account</small>
+                               th:placeholder="#{group.addMember.emailPlaceholder}" required>
+                        <small class="text-muted" th:text="#{group.addMember.emailHelp}">The user must already have a SplitFriend account</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Member</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{common.cancel}">Cancel</button>
+                    <button type="submit" class="btn btn-primary" th:text="#{group.view.addMember}">Add Member</button>
                 </div>
             </form>
         </div>

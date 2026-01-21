@@ -11,7 +11,7 @@
         <div class="col-md-6 col-lg-4">
             <div class="card shadow">
                 <div class="card-body">
-                    <h3 class="card-title text-center mb-4">Two-Factor Verification</h3>
+                    <h3 class="card-title text-center mb-4" th:text="#{auth.2fa.title}">Two-Factor Verification</h3>
 
                     <div th:replace="~{layout/main :: alerts}"></div>
 
@@ -19,11 +19,11 @@
 
                     <form th:action="@{/verify-2fa}" method="post">
                         <div class="mb-3">
-                            <label for="code" class="form-label">Verification Code</label>
+                            <label for="code" class="form-label" th:text="#{auth.2fa.verify}">Verification Code</label>
                             <input type="text" class="form-control form-control-lg text-center" id="code" name="code"
                                    placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autofocus>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Verify</button>
+                        <button type="submit" class="btn btn-primary w-100" th:text="#{auth.2fa.verify}">Verify</button>
                     </form>
                 </div>
             </div>

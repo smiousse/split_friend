@@ -13,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -26,13 +28,16 @@ public class DashboardController {
     private final GroupService groupService;
     private final BalanceService balanceService;
     private final UserService userService;
+    private final MessageSource messageSource;
 
     public DashboardController(GroupService groupService,
                                BalanceService balanceService,
-                               UserService userService) {
+                               UserService userService,
+                               MessageSource messageSource) {
         this.groupService = groupService;
         this.balanceService = balanceService;
         this.userService = userService;
+        this.messageSource = messageSource;
     }
 
     @GetMapping("/dashboard")
@@ -106,5 +111,22 @@ public class DashboardController {
         userService.updatePassword(user, newPassword);
         redirectAttributes.addFlashAttribute("message", "Password changed successfully");
         return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/language")
+    public String updateLanguage(@AuthenticationPrincipal CustomUserDetailsService.CustomUserDetails userDetails,
+                                @RequestParam("language") String language,
+                                RedirectAttributes redirectAttributes) {
+        if (!"en".equals(language) && !"fr".equals(language)) {
+            language = "en";
+        }
+
+        User user = userDetails.getUser();
+        user.setLanguage(language);
+        userService.updateUser(user);
+
+        String message = messageSource.getMessage("profile.language.changed", null, LocaleContextHolder.getLocale());
+        redirectAttributes.addFlashAttribute("message", message);
+        return "redirect:/profile?lang=" + language;
     }
 }

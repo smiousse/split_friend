@@ -46,17 +46,17 @@
                 <ul class="navbar-nav me-auto" sec:authorize="isAuthenticated()">
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/dashboard}">
-                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                            <i class="bi bi-speedometer2 me-1"></i> <span th:text="#{nav.dashboard}">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/groups}">
-                            <i class="bi bi-people me-1"></i> Groups
+                            <i class="bi bi-people me-1"></i> <span th:text="#{nav.groups}">Groups</span>
                         </a>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link" th:href="@{/admin}">
-                            <i class="bi bi-gear me-1"></i> Admin
+                            <i class="bi bi-gear me-1"></i> <span th:text="#{nav.admin}">Admin</span>
                         </a>
                     </li>
                 </ul>
@@ -68,24 +68,24 @@
                             <i class="bi bi-palette"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end theme-dropdown">
-                            <li><h6 class="dropdown-header"><i class="bi bi-brush me-1"></i> Color Theme</h6></li>
+                            <li><h6 class="dropdown-header"><i class="bi bi-brush me-1"></i> <span th:text="#{nav.colorTheme}">Color Theme</span></h6></li>
                             <li><a class="dropdown-item theme-option" href="#" data-theme="theme-emerald">
-                                <span class="theme-dot" style="background: #10b981;"></span> Emerald
+                                <span class="theme-dot" style="background: #10b981;"></span> <span th:text="#{nav.emerald}">Emerald</span>
                             </a></li>
                             <li><a class="dropdown-item theme-option" href="#" data-theme="theme-ocean">
-                                <span class="theme-dot" style="background: #0ea5e9;"></span> Ocean Blue
+                                <span class="theme-dot" style="background: #0ea5e9;"></span> <span th:text="#{nav.oceanBlue}">Ocean Blue</span>
                             </a></li>
                             <li><a class="dropdown-item theme-option" href="#" data-theme="theme-purple">
-                                <span class="theme-dot" style="background: #8b5cf6;"></span> Royal Purple
+                                <span class="theme-dot" style="background: #8b5cf6;"></span> <span th:text="#{nav.royalPurple}">Royal Purple</span>
                             </a></li>
                             <li><a class="dropdown-item theme-option" href="#" data-theme="theme-sunset">
-                                <span class="theme-dot" style="background: #f59e0b;"></span> Sunset Gold
+                                <span class="theme-dot" style="background: #f59e0b;"></span> <span th:text="#{nav.sunsetGold}">Sunset Gold</span>
                             </a></li>
                             <li><a class="dropdown-item theme-option" href="#" data-theme="theme-rose">
-                                <span class="theme-dot" style="background: #f43f5e;"></span> Rose
+                                <span class="theme-dot" style="background: #f43f5e;"></span> <span th:text="#{nav.rose}">Rose</span>
                             </a></li>
                             <li><a class="dropdown-item theme-option" href="#" data-theme="theme-slate">
-                                <span class="theme-dot" style="background: #475569;"></span> Slate Dark
+                                <span class="theme-dot" style="background: #475569;"></span> <span th:text="#{nav.slateDark}">Slate Dark</span>
                             </a></li>
                         </ul>
                     </li>
@@ -98,21 +98,21 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" th:href="@{/profile}">
-                                <i class="bi bi-person me-2"></i> Profile
+                                <i class="bi bi-person me-2"></i> <span th:text="#{nav.profile}">Profile</span>
                             </a></li>
                             <li><a class="dropdown-item" th:href="@{/setup-2fa}">
-                                <i class="bi bi-shield-lock me-2"></i> 2FA Settings
+                                <i class="bi bi-shield-lock me-2"></i> <span th:text="#{nav.2faSettings}">2FA Settings</span>
                             </a></li>
                             <li>
                                 <a class="dropdown-item" href="#" onclick="installPWA(); return false;" id="pwa-install-btn">
-                                    <i class="bi bi-download me-2"></i> Install App
+                                    <i class="bi bi-download me-2"></i> <span th:text="#{nav.installApp}">Install App</span>
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
                                     <button type="submit" class="dropdown-item">
-                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                        <i class="bi bi-box-arrow-right me-2"></i> <span th:text="#{nav.logout}">Logout</span>
                                     </button>
                                 </form>
                             </li>
@@ -122,7 +122,7 @@
                 <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/login}">
-                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                            <i class="bi bi-box-arrow-in-right me-1"></i> <span th:text="#{nav.login}">Login</span>
                         </a>
                     </li>
                 </ul>

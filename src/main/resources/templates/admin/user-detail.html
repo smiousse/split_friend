@@ -10,51 +10,51 @@
     <div th:replace="~{layout/main :: alerts}"></div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>User Details</h2>
-        <a th:href="@{/admin/users}" class="btn btn-outline-secondary">Back to Users</a>
+        <h2 th:text="#{admin.users.detail.title}">User Details</h2>
+        <a th:href="@{/admin/users}" class="btn btn-outline-secondary" th:text="#{admin.users.backToAdmin}">Back to Users</a>
     </div>
 
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">User Information</h5>
+                    <h5 class="mb-0" th:text="#{admin.users.detail.info}">User Information</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-borderless">
                         <tbody>
                             <tr>
-                                <th>ID</th>
+                                <th th:text="#{admin.users.table.id}">ID</th>
                                 <td th:text="${user.id}">1</td>
                             </tr>
                             <tr>
-                                <th>Name</th>
+                                <th th:text="#{common.name}">Name</th>
                                 <td th:text="${user.name}">Name</td>
                             </tr>
                             <tr>
-                                <th>Email</th>
+                                <th th:text="#{common.email}">Email</th>
                                 <td th:text="${user.email}">email@example.com</td>
                             </tr>
                             <tr>
-                                <th>Role</th>
+                                <th th:text="#{admin.users.table.role}">Role</th>
                                 <td th:text="${user.role}">USER</td>
                             </tr>
                             <tr>
-                                <th>Status</th>
+                                <th th:text="#{admin.users.table.status}">Status</th>
                                 <td>
-                                    <span th:if="${user.enabled}" class="badge bg-success">Active</span>
-                                    <span th:unless="${user.enabled}" class="badge bg-warning">Disabled</span>
+                                    <span th:if="${user.enabled}" class="badge bg-success" th:text="#{admin.users.status.active}">Active</span>
+                                    <span th:unless="${user.enabled}" class="badge bg-warning" th:text="#{admin.users.status.disabled}">Disabled</span>
                                 </td>
                             </tr>
                             <tr>
-                                <th>2FA</th>
+                                <th th:text="#{admin.users.table.2fa}">2FA</th>
                                 <td>
-                                    <span th:if="${user.totpEnabled}" class="badge bg-info">Enabled</span>
-                                    <span th:unless="${user.totpEnabled}" class="badge bg-light text-dark">Disabled</span>
+                                    <span th:if="${user.totpEnabled}" class="badge bg-info" th:text="#{admin.users.2fa.enabled}">Enabled</span>
+                                    <span th:unless="${user.totpEnabled}" class="badge bg-light text-dark" th:text="#{admin.users.2fa.off}">Disabled</span>
                                 </td>
                             </tr>
                             <tr>
-                                <th>Created</th>
+                                <th th:text="#{admin.users.table.created}">Created</th>
                                 <td th:text="${#temporals.format(user.createdAt, 'MMMM d, yyyy HH:mm')}">Date</td>
                             </tr>
                         </tbody>
@@ -67,7 +67,7 @@
             <!-- Change Role -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">Change Role</h5>
+                    <h5 class="mb-0" th:text="#{admin.users.detail.changeRole}">Change Role</h5>
                 </div>
                 <div class="card-body">
                     <form th:action="@{/admin/users/{id}/role(id=${user.id})}" method="post">
@@ -79,7 +79,7 @@
                                         th:selected="${role == user.role}">Role</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Update Role</button>
+                        <button type="submit" class="btn btn-primary" th:text="#{admin.users.detail.updateRole}">Update Role</button>
                     </form>
                 </div>
             </div>
@@ -87,16 +87,16 @@
             <!-- Reset Password -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">Reset Password</h5>
+                    <h5 class="mb-0" th:text="#{admin.users.detail.resetPassword}">Reset Password</h5>
                 </div>
                 <div class="card-body">
                     <form th:action="@{/admin/users/{id}/reset-password(id=${user.id})}" method="post">
                         <div class="mb-3">
-                            <label class="form-label">New Password</label>
+                            <label class="form-label" th:text="#{admin.users.detail.newPassword}">New Password</label>
                             <input type="password" class="form-control" name="newPassword"
                                    minlength="6" required placeholder="Enter new password">
                         </div>
-                        <button type="submit" class="btn btn-warning">Reset Password</button>
+                        <button type="submit" class="btn btn-warning" th:text="#{admin.users.detail.resetPassword}">Reset Password</button>
                     </form>
                 </div>
             </div>
@@ -104,28 +104,28 @@
             <!-- Danger Zone -->
             <div class="card border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">Danger Zone</h5>
+                    <h5 class="mb-0" th:text="#{admin.users.detail.dangerZone}">Danger Zone</h5>
                 </div>
                 <div class="card-body">
                     <div th:if="${user.totpEnabled}" class="mb-3">
                         <form th:action="@{/admin/users/{id}/disable-2fa(id=${user.id})}" method="post">
                             <button type="submit" class="btn btn-outline-warning"
-                                    onclick="return confirm('Disable 2FA for this user?')">
+                                    onclick="return confirm('Disable 2FA for this user?')" th:text="#{admin.users.detail.disable2fa}">
                                 Disable 2FA
                             </button>
                         </form>
                     </div>
 
                     <form th:if="${user.enabled}" th:action="@{/admin/users/{id}/disable(id=${user.id})}" method="post" class="mb-3">
-                        <button type="submit" class="btn btn-outline-warning">Disable Account</button>
+                        <button type="submit" class="btn btn-outline-warning" th:text="#{admin.users.detail.disableAccount}">Disable Account</button>
                     </form>
                     <form th:unless="${user.enabled}" th:action="@{/admin/users/{id}/enable(id=${user.id})}" method="post" class="mb-3">
-                        <button type="submit" class="btn btn-outline-success">Enable Account</button>
+                        <button type="submit" class="btn btn-outline-success" th:text="#{admin.users.detail.enableAccount}">Enable Account</button>
                     </form>
 
                     <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post">
                         <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('Are you sure you want to delete this user? This cannot be undone.')">
+                                th:attr="onclick=|return confirm('#{admin.users.detail.deleteConfirm}')|" th:text="#{admin.users.detail.deleteUser}">
                             Delete User
                         </button>
                     </form>

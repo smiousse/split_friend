@@ -16,16 +16,15 @@
                 <div class="card-body">
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <p><strong>Amount:</strong> $<span th:text="${#numbers.formatDecimal(expense.amount, 1, 2)}">0.00</span></p>
-                            <p><strong>Paid by:</strong> <span th:text="${expense.paidBy.name}">User</span></p>
-                            <p><strong>Date:</strong> <span th:text="${#temporals.format(expense.expenseDate, 'MMMM d, yyyy')}">Date</span></p>
+                            <p><strong th:text="#{expense.amount}">Amount</strong>: $<span th:text="${#numbers.formatDecimal(expense.amount, 1, 2)}">0.00</span></p>
+                            <p><strong th:text="#{expense.paidBy}">Paid by</strong>: <span th:text="${expense.paidBy.name}">User</span></p>
+                            <p><strong th:text="#{expense.date}">Date</strong>: <span th:text="${#temporals.format(expense.expenseDate, 'MMMM d, yyyy')}">Date</span></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Group:</strong>
+                            <p><strong th:text="#{settlement.group}">Group</strong>:
                                 <a th:href="@{/groups/{id}(id=${expense.group.id})}" th:text="${expense.group.name}">Group</a>
                             </p>
-                            <p><strong>Split Type:</strong> <span th:text="${expense.splitType}">Equal</span></p>
-                            <p><strong>Created:</strong> <span th:text="${#temporals.format(expense.createdAt, 'MMM d, yyyy HH:mm')}">Date</span></p>
+                            <p><strong th:text="#{expense.splitType}">Split Type</strong>: <span th:text="${expense.splitType}">Equal</span></p>
                         </div>
                     </div>
 
@@ -35,9 +34,9 @@
                             <thead>
                                 <tr>
                                     <th>Participant</th>
-                                    <th class="text-end">Amount</th>
+                                    <th class="text-end" th:text="#{expense.amount}">Amount</th>
                                     <th th:if="${expense.splitType.name() == 'PERCENTAGE'}" class="text-end">Percentage</th>
-                                    <th th:if="${expense.splitType.name() == 'SHARES'}" class="text-end">Shares</th>
+                                    <th th:if="${expense.splitType.name() == 'SHARES'}" class="text-end" th:text="#{expense.shares}">Shares</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -54,17 +53,17 @@
                     </div>
 
                     <div th:if="${expense.billPath}" class="mt-4">
-                        <h5>Attached Bill</h5>
-                        <a th:href="@{'/uploads/' + ${expense.billPath}}" target="_blank" class="btn btn-outline-primary">
+                        <h5 th:text="#{expense.bill}">Attached Bill</h5>
+                        <a th:href="@{'/uploads/' + ${expense.billPath}}" target="_blank" class="btn btn-outline-primary" th:text="#{common.view}">
                             View Bill
                         </a>
                     </div>
 
                     <div class="mt-4">
-                        <a th:href="@{/groups/{id}(id=${expense.group.id})}" class="btn btn-outline-secondary">Back to Group</a>
+                        <a th:href="@{/groups/{id}(id=${expense.group.id})}" class="btn btn-outline-secondary" th:text="#{settlement.backToGroup}">Back to Group</a>
                         <form th:action="@{/expenses/{id}/delete(id=${expense.id})}" method="post" class="d-inline">
                             <button type="submit" class="btn btn-outline-danger"
-                                    onclick="return confirm('Delete this expense?')">Delete Expense</button>
+                                    th:attr="onclick=|return confirm('#{expense.deleteExpenseConfirm}')|" th:text="#{expense.deleteExpense}">Delete Expense</button>
                         </form>
                     </div>
                 </div>

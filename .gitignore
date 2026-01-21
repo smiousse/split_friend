@@ -1,3 +1,9 @@
+#claude
+.claude/agents/
+.claude/commands/
+.claude/rules/
+.claude/skills/
+
 # Maven
 target/
 pom.xml.tag

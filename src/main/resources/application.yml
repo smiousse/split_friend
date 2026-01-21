@@ -29,6 +29,11 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
 
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
   servlet:
     multipart:
       max-file-size: 10MB

@@ -14,9 +14,9 @@
         <div class="col">
             <h2 class="d-flex align-items-center">
                 <i class="bi bi-speedometer2 me-3 text-primary"></i>
-                Welcome, <span th:text="${user.name}" class="ms-1">User</span>!
+                <span th:text="#{dashboard.welcome(${user.name})}">Welcome, User!</span>
             </h2>
-            <p class="text-muted">Here's your financial summary across all groups</p>
+            <p class="text-muted" th:text="#{dashboard.financialSummary}">Here's your financial summary across all groups</p>
         </div>
     </div>
 
@@ -28,7 +28,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h6 class="card-subtitle mb-2 opacity-75">
-                                <i class="bi bi-arrow-down-circle me-1"></i> You are owed
+                                <i class="bi bi-arrow-down-circle me-1"></i> <span th:text="#{dashboard.youAreOwed}">You are owed</span>
                             </h6>
                             <h3 class="card-title mb-0">
                                 $<span th:text="${#numbers.formatDecimal(totalOwed, 1, 2)}">0.00</span>
@@ -45,7 +45,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h6 class="card-subtitle mb-2 opacity-75">
-                                <i class="bi bi-arrow-up-circle me-1"></i> You owe
+                                <i class="bi bi-arrow-up-circle me-1"></i> <span th:text="#{dashboard.youOwe}">You owe</span>
                             </h6>
                             <h3 class="card-title mb-0">
                                 $<span th:text="${#numbers.formatDecimal(totalOwing, 1, 2)}">0.00</span>
@@ -62,7 +62,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h6 class="card-subtitle mb-2 opacity-75">
-                                <i class="bi bi-graph-up me-1"></i> Net Balance
+                                <i class="bi bi-graph-up me-1"></i> <span th:text="#{dashboard.netBalance}">Net Balance</span>
                             </h6>
                             <h3 class="card-title mb-0">
                                 $<span th:text="${#numbers.formatDecimal(netBalance, 1, 2)}">0.00</span>
@@ -78,20 +78,20 @@
     <!-- Groups Section -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="d-flex align-items-center mb-0">
-            <i class="bi bi-people me-2"></i> Your Groups
+            <i class="bi bi-people me-2"></i> <span th:text="#{dashboard.yourGroups}">Your Groups</span>
         </h4>
         <a th:href="@{/groups/create}" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-1"></i> Create Group
+            <i class="bi bi-plus-lg me-1"></i> <span th:text="#{dashboard.createGroup}">Create Group</span>
         </a>
     </div>
 
     <div th:if="${#lists.isEmpty(groups)}" class="card">
         <div class="card-body empty-state">
             <i class="bi bi-people"></i>
-            <h5>No groups yet</h5>
-            <p>Create your first group to start tracking shared expenses</p>
+            <h5 th:text="#{dashboard.noGroups}">No groups yet</h5>
+            <p th:text="#{dashboard.createFirstGroup}">Create your first group to start tracking shared expenses</p>
             <a th:href="@{/groups/create}" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-1"></i> Create your first group
+                <i class="bi bi-plus-lg me-1"></i> <span th:text="#{dashboard.createYourFirstGroup}">Create your first group</span>
             </a>
         </div>
     </div>
@@ -106,29 +106,29 @@
                         </div>
                         <div class="flex-grow-1">
                             <h5 class="card-title mb-1" th:text="${group.name}">Group Name</h5>
-                            <p class="card-text text-muted small mb-2" th:text="${group.description} ?: 'No description'">Description</p>
+                            <p class="card-text text-muted small mb-2" th:text="${group.description} ?: #{common.noDescription}">Description</p>
                         </div>
                     </div>
                     <div th:with="balance=${groupBalances.get(group.id)}">
                         <span th:if="${balance > 0}" class="balance-pill positive">
                             <i class="bi bi-arrow-down-short me-1"></i>
-                            Owed $<span th:text="${#numbers.formatDecimal(balance, 1, 2)}">0.00</span>
+                            <span th:text="#{dashboard.owed}">Owed</span> $<span th:text="${#numbers.formatDecimal(balance, 1, 2)}">0.00</span>
                         </span>
                         <span th:if="${balance < 0}" class="balance-pill negative">
                             <i class="bi bi-arrow-up-short me-1"></i>
-                            Owe $<span th:text="${#numbers.formatDecimal(balance.abs(), 1, 2)}">0.00</span>
+                            <span th:text="#{dashboard.owe}">Owe</span> $<span th:text="${#numbers.formatDecimal(balance.abs(), 1, 2)}">0.00</span>
                         </span>
                         <span th:if="${balance == 0}" class="balance-pill neutral">
-                            <i class="bi bi-check-circle me-1"></i> Settled up
+                            <i class="bi bi-check-circle me-1"></i> <span th:text="#{dashboard.settledUp}">Settled up</span>
                         </span>
                     </div>
                 </div>
                 <div class="card-footer bg-transparent border-0 pt-0">
                     <a th:href="@{/groups/{id}(id=${group.id})}" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-eye me-1"></i> View
+                        <i class="bi bi-eye me-1"></i> <span th:text="#{common.view}">View</span>
                     </a>
                     <a th:href="@{/expenses/add(groupId=${group.id})}" class="btn btn-success btn-sm">
-                        <i class="bi bi-plus-circle me-1"></i> Add Expense
+                        <i class="bi bi-plus-circle me-1"></i> <span th:text="#{dashboard.addExpense}">Add Expense</span>
                     </a>
                 </div>
             </div>

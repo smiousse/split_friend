@@ -14,13 +14,13 @@
             <div class="card shadow">
                 <div class="card-header d-flex align-items-center">
                     <i class="bi bi-person-plus-fill me-2 fs-5"></i>
-                    <h4 class="mb-0">Create New User</h4>
+                    <h4 class="mb-0" th:text="#{admin.users.create.title}">Create New User</h4>
                 </div>
                 <div class="card-body">
                     <form th:action="@{/admin/users/create}" method="post">
                         <div class="mb-3">
                             <label for="name" class="form-label">
-                                <i class="bi bi-person me-1"></i> Full Name *
+                                <i class="bi bi-person me-1"></i> <span th:text="#{common.name}">Full Name</span> *
                             </label>
                             <input type="text" class="form-control" id="name" name="name"
                                    placeholder="Enter full name" required minlength="2">
@@ -28,7 +28,7 @@
 
                         <div class="mb-3">
                             <label for="email" class="form-label">
-                                <i class="bi bi-envelope me-1"></i> Email Address *
+                                <i class="bi bi-envelope me-1"></i> <span th:text="#{common.email}">Email Address</span> *
                             </label>
                             <input type="email" class="form-control" id="email" name="email"
                                    placeholder="Enter email address" required>
@@ -36,7 +36,7 @@
 
                         <div class="mb-3">
                             <label for="password" class="form-label">
-                                <i class="bi bi-key me-1"></i> Password *
+                                <i class="bi bi-key me-1"></i> <span th:text="#{common.password}">Password</span> *
                             </label>
                             <input type="password" class="form-control" id="password" name="password"
                                    placeholder="Enter password" required minlength="6">
@@ -47,7 +47,7 @@
 
                         <div class="mb-4">
                             <label for="role" class="form-label">
-                                <i class="bi bi-shield me-1"></i> Role *
+                                <i class="bi bi-shield me-1"></i> <span th:text="#{admin.users.table.role}">Role</span> *
                             </label>
                             <select class="form-select" id="role" name="role" required>
                                 <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"
@@ -57,10 +57,10 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-person-plus me-1"></i> Create User
+                                <i class="bi bi-person-plus me-1"></i> <span th:text="#{admin.users.create.submit}">Create User</span>
                             </button>
                             <a th:href="@{/admin/users}" class="btn btn-outline-secondary">
-                                <i class="bi bi-x-lg me-1"></i> Cancel
+                                <i class="bi bi-x-lg me-1"></i> <span th:text="#{common.cancel}">Cancel</span>
                             </a>
                         </div>
                     </form>

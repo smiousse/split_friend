@@ -10,33 +10,32 @@
     <div th:replace="~{layout/main :: alerts}"></div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Application Settings</h2>
-        <a th:href="@{/admin}" class="btn btn-outline-secondary">Back to Admin</a>
+        <h2 th:text="#{admin.settings.title}">Application Settings</h2>
+        <a th:href="@{/admin}" class="btn btn-outline-secondary" th:text="#{admin.users.backToAdmin}">Back to Admin</a>
     </div>
 
     <div class="row">
         <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">General Settings</h5>
+                    <h5 class="mb-0" th:text="#{admin.settings.general}">General Settings</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">
+                    <p class="text-muted" th:text="#{admin.settings.configNote}">
                         Application settings are configured via environment variables or application.yml.
-                        See the documentation for available configuration options.
                     </p>
                     <table class="table table-sm">
                         <tbody>
                             <tr>
-                                <th>Default Currency</th>
+                                <th th:text="#{admin.settings.defaultCurrency}">Default Currency</th>
                                 <td th:text="${@environment.getProperty('app.currency.default', 'USD')}">USD</td>
                             </tr>
                             <tr>
-                                <th>Upload Path</th>
+                                <th th:text="#{admin.settings.uploadPath}">Upload Path</th>
                                 <td th:text="${@environment.getProperty('app.upload.path', './uploads')}">./uploads</td>
                             </tr>
                             <tr>
-                                <th>Session Timeout</th>
+                                <th th:text="#{admin.settings.sessionTimeout}">Session Timeout</th>
                                 <td th:text="${@environment.getProperty('server.servlet.session.timeout', '30m')}">30m</td>
                             </tr>
                         </tbody>
@@ -48,11 +47,11 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Database</h5>
+                    <h5 class="mb-0" th:text="#{admin.system.database}">Database</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">H2 database console is available for direct database access.</p>
-                    <a th:href="@{/h2-console}" target="_blank" class="btn btn-outline-primary">Open H2 Console</a>
+                    <a th:href="@{/h2-console}" target="_blank" class="btn btn-outline-primary" th:text="#{admin.quickActions.h2Console}">Open H2 Console</a>
                     <div class="mt-3">
                         <small class="text-muted">
                             JDBC URL: <code>jdbc:h2:file:./data/splitfriend</code><br>

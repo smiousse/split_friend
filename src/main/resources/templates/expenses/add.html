@@ -11,20 +11,20 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-body">
-                    <h3 class="card-title text-center mb-4">Add Expense to <span th:text="${group.name}">Group</span></h3>
+                    <h3 class="card-title text-center mb-4" th:text="#{expense.add.title(${group.name})}">Add Expense to Group</h3>
 
                     <form th:action="@{/expenses/add}" th:object="${expense}" method="post" enctype="multipart/form-data">
                         <input type="hidden" th:field="*{groupId}">
 
                         <div class="row">
                             <div class="col-md-8 mb-3">
-                                <label for="description" class="form-label">Description *</label>
+                                <label for="description" class="form-label"><span th:text="#{expense.description}">Description</span> *</label>
                                 <input type="text" class="form-control" th:class="${#fields.hasErrors('description')} ? 'form-control is-invalid' : 'form-control'"
-                                       id="description" th:field="*{description}" placeholder="e.g., Dinner at restaurant" required>
+                                       id="description" th:field="*{description}" th:placeholder="#{expense.descriptionPlaceholder}" required>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="amount" class="form-label">Amount *</label>
+                                <label for="amount" class="form-label"><span th:text="#{expense.amount}">Amount</span> *</label>
                                 <div class="input-group">
                                     <span class="input-group-text" th:text="${group.currency}">$</span>
                                     <input type="number" step="0.01" min="0.01" class="form-control"
@@ -37,7 +37,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="paidById" class="form-label">Paid by *</label>
+                                <label for="paidById" class="form-label"><span th:text="#{expense.paidBy}">Paid by</span> *</label>
                                 <select class="form-select" id="paidById" th:field="*{paidById}" required>
                                     <option th:each="member : ${members}"
                                             th:value="${member.id}"
@@ -46,24 +46,24 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="expenseDate" class="form-label">Date</label>
+                                <label for="expenseDate" class="form-label" th:text="#{expense.date}">Date</label>
                                 <input type="date" class="form-control" id="expenseDate" name="expenseDate"
                                        th:value="${expense.expenseDate != null ? #temporals.format(expense.expenseDate, 'yyyy-MM-dd') : #temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="splitType" class="form-label">Split Type *</label>
+                            <label for="splitType" class="form-label"><span th:text="#{expense.splitType}">Split Type</span> *</label>
                             <select class="form-select" id="splitType" th:field="*{splitType}" onchange="updateSplitUI()">
-                                <option value="EQUAL">Equal - Split equally among selected members</option>
-                                <option value="EXACT">Exact amounts - Enter specific amounts per person</option>
-                                <option value="PERCENTAGE">Percentage - Enter percentage per person</option>
-                                <option value="SHARES">Shares - Enter share weights per person</option>
+                                <option value="EQUAL" th:text="#{expense.splitType.equal}">Equal - Split equally among selected members</option>
+                                <option value="EXACT" th:text="#{expense.splitType.exact}">Exact amounts - Enter specific amounts per person</option>
+                                <option value="PERCENTAGE" th:text="#{expense.splitType.percentage}">Percentage - Enter percentage per person</option>
+                                <option value="SHARES" th:text="#{expense.splitType.shares}">Shares - Enter share weights per person</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Split among *</label>
+                            <label class="form-label"><span th:text="#{expense.splitAmong}">Split among</span> *</label>
                             <div class="card">
                                 <div class="card-body" id="participantsList">
                                     <div th:each="member : ${members}" class="form-check mb-2 participant-row">
@@ -95,7 +95,7 @@
                                                     <div class="input-group input-group-sm">
                                                         <input type="number" step="1" min="0" class="form-control"
                                                                th:name="'shares_' + ${member.id}" placeholder="1" value="1">
-                                                        <span class="input-group-text">shares</span>
+                                                        <span class="input-group-text" th:text="#{expense.shares}">shares</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -106,14 +106,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="bill" class="form-label">Bill/Receipt (optional)</label>
+                            <label for="bill" class="form-label" th:text="#{expense.bill}">Bill/Receipt (optional)</label>
                             <input type="file" class="form-control" id="bill" name="bill" accept="image/*,.pdf">
-                            <small class="text-muted">Upload a photo of the bill (max 10MB)</small>
+                            <small class="text-muted" th:text="#{expense.billHelp}">Upload a photo of the bill (max 10MB)</small>
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Add Expense</button>
-                            <a th:href="@{/groups/{id}(id=${group.id})}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary" th:text="#{expense.addExpense}">Add Expense</button>
+                            <a th:href="@{/groups/{id}(id=${group.id})}" class="btn btn-outline-secondary" th:text="#{common.cancel}">Cancel</a>
                         </div>
                     </form>
                 </div>

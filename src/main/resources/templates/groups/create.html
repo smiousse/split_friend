@@ -11,24 +11,24 @@
         <div class="col-md-8 col-lg-6">
             <div class="card shadow">
                 <div class="card-body">
-                    <h3 class="card-title text-center mb-4">Create New Group</h3>
+                    <h3 class="card-title text-center mb-4" th:text="#{group.create.title}">Create New Group</h3>
 
                     <form th:action="@{/groups/create}" th:object="${group}" method="post">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Group Name *</label>
+                            <label for="name" class="form-label"><span th:text="#{group.create.name}">Group Name</span> *</label>
                             <input type="text" class="form-control" th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'"
-                                   id="name" th:field="*{name}" placeholder="e.g., Trip to Paris" required>
+                                   id="name" th:field="*{name}" th:placeholder="#{group.create.namePlaceholder}" required>
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
+                            <label for="description" class="form-label" th:text="#{group.create.description}">Description</label>
                             <textarea class="form-control" id="description" th:field="*{description}"
-                                      rows="3" placeholder="Optional description"></textarea>
+                                      rows="3" th:placeholder="#{group.create.descriptionPlaceholder}"></textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label for="currency" class="form-label">Currency</label>
+                            <label for="currency" class="form-label" th:text="#{group.create.currency}">Currency</label>
                             <select class="form-select" id="currency" th:field="*{currency}">
                                 <option value="USD">USD - US Dollar</option>
                                 <option value="EUR">EUR - Euro</option>
@@ -41,8 +41,8 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Create Group</button>
-                            <a th:href="@{/groups}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary" th:text="#{group.create.submit}">Create Group</button>
+                            <a th:href="@{/groups}" class="btn btn-outline-secondary" th:text="#{common.cancel}">Cancel</a>
                         </div>
                     </form>
                 </div>

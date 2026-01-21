@@ -13,16 +13,16 @@
         <div class="d-flex align-items-center">
             <i class="bi bi-people-fill fs-2 me-3 text-primary"></i>
             <div>
-                <h2 class="mb-0">User Management</h2>
-                <p class="text-muted mb-0">Manage system users and permissions</p>
+                <h2 class="mb-0" th:text="#{admin.users.title}">User Management</h2>
+                <p class="text-muted mb-0" th:text="#{admin.users.subtitle}">Manage system users and permissions</p>
             </div>
         </div>
         <div>
             <a th:href="@{/admin/users/create}" class="btn btn-success">
-                <i class="bi bi-person-plus me-1"></i> Create User
+                <i class="bi bi-person-plus me-1"></i> <span th:text="#{admin.users.create}">Create User</span>
             </a>
             <a th:href="@{/admin}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Back to Admin
+                <i class="bi bi-arrow-left me-1"></i> <span th:text="#{admin.users.backToAdmin}">Back to Admin</span>
             </a>
         </div>
     </div>
@@ -34,13 +34,13 @@
                 <div class="col-md-10">
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control" name="search" placeholder="Search by name or email"
+                        <input type="text" class="form-control" name="search" th:placeholder="#{admin.users.searchPlaceholder}"
                                th:value="${search}">
                     </div>
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-search me-1"></i> Search
+                        <i class="bi bi-search me-1"></i> <span th:text="#{common.search}">Search</span>
                     </button>
                 </div>
             </form>
@@ -54,14 +54,14 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th><i class="bi bi-hash me-1"></i>ID</th>
-                            <th><i class="bi bi-person me-1"></i>Name</th>
-                            <th><i class="bi bi-envelope me-1"></i>Email</th>
-                            <th><i class="bi bi-shield me-1"></i>Role</th>
-                            <th><i class="bi bi-toggle-on me-1"></i>Status</th>
-                            <th><i class="bi bi-shield-lock me-1"></i>2FA</th>
-                            <th><i class="bi bi-calendar me-1"></i>Created</th>
-                            <th>Actions</th>
+                            <th><i class="bi bi-hash me-1"></i><span th:text="#{admin.users.table.id}">ID</span></th>
+                            <th><i class="bi bi-person me-1"></i><span th:text="#{admin.users.table.name}">Name</span></th>
+                            <th><i class="bi bi-envelope me-1"></i><span th:text="#{admin.users.table.email}">Email</span></th>
+                            <th><i class="bi bi-shield me-1"></i><span th:text="#{admin.users.table.role}">Role</span></th>
+                            <th><i class="bi bi-toggle-on me-1"></i><span th:text="#{admin.users.table.status}">Status</span></th>
+                            <th><i class="bi bi-shield-lock me-1"></i><span th:text="#{admin.users.table.2fa}">2FA</span></th>
+                            <th><i class="bi bi-calendar me-1"></i><span th:text="#{admin.users.table.created}">Created</span></th>
+                            <th th:text="#{admin.users.table.actions}">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,26 +78,26 @@
                             <td th:text="${user.email}">email@example.com</td>
                             <td>
                                 <span th:if="${user.role.name() == 'ADMIN'}" class="badge bg-danger">
-                                    <i class="bi bi-shield-fill me-1"></i>Admin
+                                    <i class="bi bi-shield-fill me-1"></i><span th:text="#{admin.users.role.admin}">Admin</span>
                                 </span>
                                 <span th:unless="${user.role.name() == 'ADMIN'}" class="badge bg-secondary">
-                                    <i class="bi bi-person me-1"></i>User
+                                    <i class="bi bi-person me-1"></i><span th:text="#{admin.users.role.user}">User</span>
                                 </span>
                             </td>
                             <td>
                                 <span th:if="${user.enabled}" class="badge bg-success">
-                                    <i class="bi bi-check-circle me-1"></i>Active
+                                    <i class="bi bi-check-circle me-1"></i><span th:text="#{admin.users.status.active}">Active</span>
                                 </span>
                                 <span th:unless="${user.enabled}" class="badge bg-warning text-dark">
-                                    <i class="bi bi-pause-circle me-1"></i>Disabled
+                                    <i class="bi bi-pause-circle me-1"></i><span th:text="#{admin.users.status.disabled}">Disabled</span>
                                 </span>
                             </td>
                             <td>
                                 <span th:if="${user.totpEnabled}" class="badge bg-info">
-                                    <i class="bi bi-shield-check me-1"></i>Enabled
+                                    <i class="bi bi-shield-check me-1"></i><span th:text="#{admin.users.2fa.enabled}">Enabled</span>
                                 </span>
                                 <span th:unless="${user.totpEnabled}" class="badge bg-light text-dark">
-                                    <i class="bi bi-shield-x me-1"></i>Off
+                                    <i class="bi bi-shield-x me-1"></i><span th:text="#{admin.users.2fa.off}">Off</span>
                                 </span>
                             </td>
                             <td th:text="${#temporals.format(user.createdAt, 'MMM d, yyyy')}">Date</td>
@@ -107,13 +107,13 @@
                                 </a>
                                 <form th:if="${user.enabled}" th:action="@{/admin/users/{id}/disable(id=${user.id})}"
                                       method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Disable user">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" th:title="#{admin.users.disable}">
                                         <i class="bi bi-pause-circle"></i>
                                     </button>
                                 </form>
                                 <form th:unless="${user.enabled}" th:action="@{/admin/users/{id}/enable(id=${user.id})}"
                                       method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Enable user">
+                                    <button type="submit" class="btn btn-sm btn-outline-success" th:title="#{admin.users.enable}">
                                         <i class="bi bi-play-circle"></i>
                                     </button>
                                 </form>
@@ -125,8 +125,8 @@
 
             <div th:if="${#lists.isEmpty(users)}" class="empty-state">
                 <i class="bi bi-people"></i>
-                <h5>No users found</h5>
-                <p>No users match your search criteria</p>
+                <h5 th:text="#{admin.users.noUsersFound}">No users found</h5>
+                <p th:text="#{admin.users.noUsersMatch}">No users match your search criteria</p>
             </div>
         </div>
     </div>

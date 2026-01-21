@@ -12,21 +12,21 @@
     <div class="d-flex align-items-center mb-4">
         <i class="bi bi-shield-lock-fill fs-2 me-3 text-primary"></i>
         <div>
-            <h2 class="mb-0">Admin Dashboard</h2>
-            <p class="text-muted mb-0">System overview and management</p>
+            <h2 class="mb-0" th:text="#{admin.dashboard.title}">Admin Dashboard</h2>
+            <p class="text-muted mb-0" th:text="#{admin.dashboard.subtitle}">System overview and management</p>
         </div>
     </div>
 
     <!-- Quick Links -->
     <div class="mb-4">
         <a th:href="@{/admin/users}" class="btn btn-primary">
-            <i class="bi bi-people-fill me-1"></i> Manage Users
+            <i class="bi bi-people-fill me-1"></i> <span th:text="#{admin.manageUsers}">Manage Users</span>
         </a>
         <a th:href="@{/admin/backup}" class="btn btn-success">
-            <i class="bi bi-database-fill-gear me-1"></i> Backup & Restore
+            <i class="bi bi-database-fill-gear me-1"></i> <span th:text="#{admin.backupRestore}">Backup & Restore</span>
         </a>
         <a th:href="@{/admin/settings}" class="btn btn-outline-secondary">
-            <i class="bi bi-gear-fill me-1"></i> Settings
+            <i class="bi bi-gear-fill me-1"></i> <span th:text="#{admin.settings}">Settings</span>
         </a>
     </div>
 
@@ -37,11 +37,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h6 class="card-subtitle mb-2 opacity-75">Total Users</h6>
+                            <h6 class="card-subtitle mb-2 opacity-75" th:text="#{admin.stats.totalUsers}">Total Users</h6>
                             <h2 th:text="${totalUsers}">0</h2>
                             <small class="opacity-75">
                                 <i class="bi bi-check-circle me-1"></i>
-                                <span th:text="${activeUsers}">0</span> active
+                                <span th:text="${activeUsers}">0</span> <span th:text="#{admin.stats.active}">active</span>
                             </small>
                         </div>
                         <i class="bi bi-people stat-icon"></i>
@@ -54,10 +54,10 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h6 class="card-subtitle mb-2 opacity-75">Total Groups</h6>
+                            <h6 class="card-subtitle mb-2 opacity-75" th:text="#{admin.stats.totalGroups}">Total Groups</h6>
                             <h2 th:text="${totalGroups}">0</h2>
                             <small class="opacity-75">
-                                <i class="bi bi-collection me-1"></i> Active groups
+                                <i class="bi bi-collection me-1"></i> <span th:text="#{admin.stats.activeGroups}">Active groups</span>
                             </small>
                         </div>
                         <i class="bi bi-people-fill stat-icon"></i>
@@ -70,7 +70,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h6 class="card-subtitle mb-2 opacity-75">Total Expenses</h6>
+                            <h6 class="card-subtitle mb-2 opacity-75" th:text="#{admin.stats.totalExpenses}">Total Expenses</h6>
                             <h2 th:text="${totalExpenses}">0</h2>
                             <small class="opacity-75">
                                 <i class="bi bi-currency-dollar me-1"></i>
@@ -87,7 +87,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h6 class="card-subtitle mb-2 opacity-75">Total Settlements</h6>
+                            <h6 class="card-subtitle mb-2 opacity-75" th:text="#{admin.stats.totalSettlements}">Total Settlements</h6>
                             <h2 th:text="${totalSettlements}">0</h2>
                             <small class="opacity-75">
                                 <i class="bi bi-check2-all me-1"></i>
@@ -107,25 +107,25 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center">
                     <i class="bi bi-cpu me-2"></i>
-                    <h5 class="mb-0">System Information</h5>
+                    <h5 class="mb-0" th:text="#{admin.system.title}">System Information</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-sm">
                         <tbody>
                             <tr>
-                                <th><i class="bi bi-code-slash me-2 text-muted"></i>Java Version</th>
+                                <th><i class="bi bi-code-slash me-2 text-muted"></i><span th:text="#{admin.system.javaVersion}">Java Version</span></th>
                                 <td th:text="${@environment.getProperty('java.version')}">17</td>
                             </tr>
                             <tr>
-                                <th><i class="bi bi-box-seam me-2 text-muted"></i>Spring Boot</th>
+                                <th><i class="bi bi-box-seam me-2 text-muted"></i><span th:text="#{admin.system.springBoot}">Spring Boot</span></th>
                                 <td>3.2.0</td>
                             </tr>
                             <tr>
-                                <th><i class="bi bi-database me-2 text-muted"></i>Database</th>
+                                <th><i class="bi bi-database me-2 text-muted"></i><span th:text="#{admin.system.database}">Database</span></th>
                                 <td>H2 (File-based)</td>
                             </tr>
                             <tr>
-                                <th><i class="bi bi-hdd me-2 text-muted"></i>Server</th>
+                                <th><i class="bi bi-hdd me-2 text-muted"></i><span th:text="#{admin.system.server}">Server</span></th>
                                 <td>Embedded Jetty</td>
                             </tr>
                         </tbody>
@@ -137,18 +137,18 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center">
                     <i class="bi bi-lightning-charge me-2"></i>
-                    <h5 class="mb-0">Quick Actions</h5>
+                    <h5 class="mb-0" th:text="#{admin.quickActions.title}">Quick Actions</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a th:href="@{/admin/users/create}" class="btn btn-outline-success">
-                            <i class="bi bi-person-plus me-2"></i> Create New User
+                            <i class="bi bi-person-plus me-2"></i> <span th:text="#{admin.quickActions.createUser}">Create New User</span>
                         </a>
                         <a th:href="@{/admin/backup/download}" class="btn btn-outline-primary">
-                            <i class="bi bi-download me-2"></i> Download Backup
+                            <i class="bi bi-download me-2"></i> <span th:text="#{admin.quickActions.downloadBackup}">Download Backup</span>
                         </a>
                         <a th:href="@{/h2-console}" target="_blank" class="btn btn-outline-secondary">
-                            <i class="bi bi-database me-2"></i> H2 Database Console
+                            <i class="bi bi-database me-2"></i> <span th:text="#{admin.quickActions.h2Console}">H2 Database Console</span>
                         </a>
                     </div>
                 </div>

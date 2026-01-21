@@ -11,7 +11,7 @@
         <div class="col-md-8 col-lg-6">
             <div class="card shadow">
                 <div class="card-body">
-                    <h3 class="card-title text-center mb-4">Setup Two-Factor Authentication</h3>
+                    <h3 class="card-title text-center mb-4" th:text="#{auth.2fa.title}">Setup Two-Factor Authentication</h3>
 
                     <div th:replace="~{layout/main :: alerts}"></div>
 
@@ -25,12 +25,12 @@
 
                     <form th:action="@{/setup-2fa}" method="post">
                         <div class="mb-3">
-                            <label for="code" class="form-label">Verification Code</label>
+                            <label for="code" class="form-label" th:text="#{auth.2fa.verify}">Verification Code</label>
                             <input type="text" class="form-control" id="code" name="code"
-                                   placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}" required autofocus>
+                                   th:placeholder="#{auth.2fa.enterCode}" maxlength="6" pattern="[0-9]{6}" required autofocus>
                             <small class="text-muted">Enter the 6-digit code from your authenticator app</small>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Enable 2FA</button>
+                        <button type="submit" class="btn btn-primary w-100" th:text="#{auth.2fa.setup}">Enable 2FA</button>
                     </form>
 
                     <hr>
