@@ -48,9 +48,10 @@ public class SecurityConfig {
         http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/css/**", "/js/**", "/webjars/**", "/error").permitAll()
+                .requestMatchers("/", "/login", "/css/**", "/js/**", "/webjars/**", "/error", "/sw.js", "/manifest.json", "/icons/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/push/**").authenticated()
                 .requestMatchers("/verify-2fa", "/setup-2fa").authenticated()
                 .anyRequest().authenticated()
             )
@@ -61,11 +62,17 @@ public class SecurityConfig {
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
+            .rememberMe(remember -> remember
+                .rememberMeParameter("remember-me")
+                .tokenValiditySeconds(30 * 24 * 60 * 60) // 30 days
+                .key("splitfriend-remember-me-key")
+                .userDetailsService(userDetailsService)
+            )
             .logout(logout -> logout
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
+                .deleteCookies("JSESSIONID", "remember-me")
                 .permitAll()
             )
             .exceptionHandling(ex -> ex
@@ -76,6 +83,7 @@ public class SecurityConfig {
             )
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/h2-console/**")
+                .ignoringRequestMatchers("/api/push/**")
             );
 
         return http.build();

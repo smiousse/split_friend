@@ -24,14 +24,17 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final ExpenseSplitRepository expenseSplitRepository;
+    private final PushNotificationService pushNotificationService;
 
     @Value("${app.upload.path:./uploads}")
     private String uploadPath;
 
     public ExpenseService(ExpenseRepository expenseRepository,
-                          ExpenseSplitRepository expenseSplitRepository) {
+                          ExpenseSplitRepository expenseSplitRepository,
+                          PushNotificationService pushNotificationService) {
         this.expenseRepository = expenseRepository;
         this.expenseSplitRepository = expenseSplitRepository;
+        this.pushNotificationService = pushNotificationService;
     }
 
     public Expense createExpense(Group group, User paidBy, String description,
@@ -61,6 +64,9 @@ public class ExpenseService {
         List<ExpenseSplit> splits = createSplits(expense, splitType, amount,
                 splitAmounts, percentages, shares, participants);
         expense.setSplits(splits);
+
+        // Send push notifications to participants (excluding payer)
+        pushNotificationService.notifyExpenseParticipants(expense, paidBy, participants);
 
         return expense;
     }

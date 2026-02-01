@@ -63,6 +63,37 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header">
+                    <h5 class="mb-0" th:text="#{profile.push.title}">Push Notifications</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3" th:text="#{profile.push.description}">
+                        Receive notifications when someone adds an expense where you're a participant.
+                    </p>
+                    <div class="d-flex align-items-center mb-3">
+                        <i id="push-status-icon" class="bi bi-bell-slash text-muted me-2"></i>
+                        <span id="push-status-text"
+                              th:data-enabled="#{profile.push.enabled}"
+                              th:data-disabled="#{profile.push.disabled}"
+                              th:data-not-supported="#{profile.push.notSupported}"
+                              th:data-server-disabled="#{profile.push.serverDisabled}"
+                              th:data-error="#{profile.push.error}"
+                              th:text="#{profile.push.checking}">Checking...</span>
+                    </div>
+                    <button id="push-enable-btn" class="btn btn-primary" onclick="subscribeToPush()" style="display: none;">
+                        <i class="bi bi-bell me-1"></i>
+                        <span th:text="#{profile.push.enable}">Enable Notifications</span>
+                    </button>
+                    <button id="push-disable-btn" class="btn btn-outline-secondary" onclick="unsubscribeFromPush()" style="display: none;">
+                        <i class="bi bi-bell-slash me-1"></i>
+                        <span th:text="#{profile.push.disable}">Disable Notifications</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
                     <h5 class="mb-0" th:text="#{profile.2fa.title}">Two-Factor Authentication</h5>
                 </div>
                 <div class="card-body">

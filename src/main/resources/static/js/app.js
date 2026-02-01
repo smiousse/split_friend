@@ -313,3 +313,214 @@ function animateValue(element, start, end, duration) {
         }
     }, stepTime);
 }
+
+// ===== PUSH NOTIFICATIONS =====
+
+var pushVapidPublicKey = null;
+
+// Check push notification status on page load
+function checkPushStatus() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        updatePushUI(false, false, 'not-supported');
+        return;
+    }
+
+    fetch('/api/push/status')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (!data.pushEnabled) {
+                updatePushUI(false, false, 'server-disabled');
+                return;
+            }
+
+            navigator.serviceWorker.ready.then(function(registration) {
+                registration.pushManager.getSubscription().then(function(subscription) {
+                    var isSubscribed = subscription !== null && data.isSubscribed;
+                    updatePushUI(true, isSubscribed, isSubscribed ? 'subscribed' : 'not-subscribed');
+                });
+            });
+        })
+        .catch(function(error) {
+            console.error('Error checking push status:', error);
+            updatePushUI(false, false, 'error');
+        });
+}
+
+// Update push notification UI based on status
+function updatePushUI(enabled, subscribed, status) {
+    var enableBtn = document.getElementById('push-enable-btn');
+    var disableBtn = document.getElementById('push-disable-btn');
+    var statusText = document.getElementById('push-status-text');
+    var statusIcon = document.getElementById('push-status-icon');
+
+    if (!enableBtn || !disableBtn || !statusText) return;
+
+    if (status === 'not-supported') {
+        enableBtn.style.display = 'none';
+        disableBtn.style.display = 'none';
+        statusText.textContent = statusText.dataset.notSupported || 'Push notifications are not supported in this browser';
+        if (statusIcon) statusIcon.className = 'bi bi-x-circle text-muted me-2';
+    } else if (status === 'server-disabled') {
+        enableBtn.style.display = 'none';
+        disableBtn.style.display = 'none';
+        statusText.textContent = statusText.dataset.serverDisabled || 'Push notifications are not configured on server';
+        if (statusIcon) statusIcon.className = 'bi bi-x-circle text-muted me-2';
+    } else if (status === 'subscribed') {
+        enableBtn.style.display = 'none';
+        disableBtn.style.display = 'inline-block';
+        statusText.textContent = statusText.dataset.enabled || 'Notifications are enabled';
+        if (statusIcon) statusIcon.className = 'bi bi-check-circle text-success me-2';
+    } else if (status === 'not-subscribed') {
+        enableBtn.style.display = 'inline-block';
+        disableBtn.style.display = 'none';
+        statusText.textContent = statusText.dataset.disabled || 'Notifications are disabled';
+        if (statusIcon) statusIcon.className = 'bi bi-bell-slash text-muted me-2';
+    } else {
+        enableBtn.style.display = 'inline-block';
+        disableBtn.style.display = 'none';
+        statusText.textContent = statusText.dataset.error || 'Unable to check notification status';
+        if (statusIcon) statusIcon.className = 'bi bi-exclamation-circle text-warning me-2';
+    }
+}
+
+// Subscribe to push notifications
+function subscribeToPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        showToast('Push notifications are not supported in this browser');
+        return;
+    }
+
+    // First get the VAPID public key
+    fetch('/api/push/vapid-public-key')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (!data.enabled || !data.publicKey) {
+                showToast('Push notifications are not configured on server');
+                return;
+            }
+
+            pushVapidPublicKey = data.publicKey;
+
+            // Request notification permission
+            return Notification.requestPermission();
+        })
+        .then(function(permission) {
+            if (permission !== 'granted') {
+                showToast('Notification permission denied');
+                updatePushUI(true, false, 'not-subscribed');
+                return;
+            }
+
+            // Subscribe to push
+            return navigator.serviceWorker.ready;
+        })
+        .then(function(registration) {
+            if (!registration) return;
+
+            var applicationServerKey = urlBase64ToUint8Array(pushVapidPublicKey);
+
+            return registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: applicationServerKey
+            });
+        })
+        .then(function(subscription) {
+            if (!subscription) return;
+
+            // Send subscription to server
+            return fetch('/api/push/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    endpoint: subscription.endpoint,
+                    keys: {
+                        p256dh: arrayBufferToBase64(subscription.getKey('p256dh')),
+                        auth: arrayBufferToBase64(subscription.getKey('auth'))
+                    }
+                })
+            });
+        })
+        .then(function(response) {
+            if (response && response.ok) {
+                showToast('Push notifications enabled!');
+                updatePushUI(true, true, 'subscribed');
+            }
+        })
+        .catch(function(error) {
+            console.error('Error subscribing to push:', error);
+            showToast('Failed to enable push notifications');
+        });
+}
+
+// Unsubscribe from push notifications
+function unsubscribeFromPush() {
+    navigator.serviceWorker.ready
+        .then(function(registration) {
+            return registration.pushManager.getSubscription();
+        })
+        .then(function(subscription) {
+            if (!subscription) {
+                updatePushUI(true, false, 'not-subscribed');
+                return;
+            }
+
+            var endpoint = subscription.endpoint;
+
+            // Unsubscribe locally
+            return subscription.unsubscribe().then(function() {
+                // Notify server
+                return fetch('/api/push/unsubscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ endpoint: endpoint })
+                });
+            });
+        })
+        .then(function(response) {
+            if (response && response.ok) {
+                showToast('Push notifications disabled');
+                updatePushUI(true, false, 'not-subscribed');
+            }
+        })
+        .catch(function(error) {
+            console.error('Error unsubscribing from push:', error);
+            showToast('Failed to disable push notifications');
+        });
+}
+
+// Helper: Convert URL-safe base64 to Uint8Array
+function urlBase64ToUint8Array(base64String) {
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+
+    var rawData = window.atob(base64);
+    var outputArray = new Uint8Array(rawData.length);
+
+    for (var i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+// Helper: Convert ArrayBuffer to base64
+function arrayBufferToBase64(buffer) {
+    var binary = '';
+    var bytes = new Uint8Array(buffer);
+    for (var i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+}
+
+// Initialize push notification UI on profile page
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('push-enable-btn')) {
+        checkPushStatus();
+    }
+});

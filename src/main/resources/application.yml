@@ -77,3 +77,9 @@ app:
       # Cron expression: second minute hour day-of-month month day-of-week
       # Default: 2:00 AM every day
       cron: "0 0 2 * * ?"
+  push:
+    enabled: ${PUSH_ENABLED:true}
+    vapid:
+      public-key: ${VAPID_PUBLIC_KEY:MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEjoRffW2lWAwQ1xbVUwjgXmrVIFq73nYKFL6Ut3ld1b8GkfxQkmyefUqK2c6suN6roUw1O2Cgm-5ai8XQg_0CRA}
+      private-key: ${VAPID_PRIVATE_KEY:MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgS0d70P17Kioqp2ieoxOCrVjYNOLQg1kIGW0SanZjFVagCgYIKoZIzj0DAQehRANCAASOhF99baVYDBDXFtVTCOBeatUgWrvedgoUvpS3eV3VvwaR_FCSbJ59SorZzqy43quhTDU7YKCb7lqLxdCD_QJE}
+      subject: ${VAPID_SUBJECT:mailto:admin@splitfriend.local}
