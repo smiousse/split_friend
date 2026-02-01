@@ -1,6 +1,8 @@
 package com.splitfriend.util;
 
 import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.interfaces.ECPrivateKey;
+import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 
@@ -10,6 +12,10 @@ import java.util.Base64;
 /**
  * Utility to generate VAPID key pair for Web Push notifications.
  * Run this once to generate keys, then add them to application.yml.
+ *
+ * Generates raw EC keys in Base64 URL-safe format required by web-push library:
+ * - Public key: 65 bytes uncompressed EC point (0x04 || x || y)
+ * - Private key: 32 bytes raw scalar value
  */
 public class VapidKeyGenerator {
 
@@ -23,11 +29,28 @@ public class VapidKeyGenerator {
 
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
-            byte[] publicKeyBytes = keyPair.getPublic().getEncoded();
-            byte[] privateKeyBytes = keyPair.getPrivate().getEncoded();
+            // Extract raw public key bytes (65 bytes uncompressed: 0x04 || x || y)
+            ECPublicKey ecPublicKey = (ECPublicKey) keyPair.getPublic();
+            byte[] rawPublicKey = ecPublicKey.getQ().getEncoded(false);
 
-            String publicKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(publicKeyBytes);
-            String privateKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(privateKeyBytes);
+            // Extract raw private key bytes (32 bytes)
+            ECPrivateKey ecPrivateKey = (ECPrivateKey) keyPair.getPrivate();
+            byte[] rawPrivateKeyBytes = ecPrivateKey.getD().toByteArray();
+
+            // Handle BigInteger sign byte - ensure exactly 32 bytes
+            byte[] rawPrivateKey = new byte[32];
+            if (rawPrivateKeyBytes.length == 33 && rawPrivateKeyBytes[0] == 0) {
+                // Remove leading zero byte (sign byte from BigInteger)
+                System.arraycopy(rawPrivateKeyBytes, 1, rawPrivateKey, 0, 32);
+            } else if (rawPrivateKeyBytes.length <= 32) {
+                // Pad with leading zeros if shorter
+                System.arraycopy(rawPrivateKeyBytes, 0, rawPrivateKey, 32 - rawPrivateKeyBytes.length, rawPrivateKeyBytes.length);
+            } else {
+                throw new IllegalStateException("Unexpected private key length: " + rawPrivateKeyBytes.length);
+            }
+
+            String publicKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(rawPublicKey);
+            String privateKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(rawPrivateKey);
 
             System.out.println("=== VAPID Key Pair Generated ===");
             System.out.println();
