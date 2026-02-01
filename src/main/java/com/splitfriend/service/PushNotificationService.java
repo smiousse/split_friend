@@ -64,6 +64,10 @@ public class PushNotificationService {
             } catch (GeneralSecurityException e) {
                 log.error("Failed to initialize push service: {}", e.getMessage());
                 pushEnabled = false;
+            } catch (Exception e) {
+                log.error("Failed to initialize push service (invalid VAPID key format?): {}", e.getMessage());
+                log.info("Push notifications disabled. Generate valid VAPID keys with: mvn exec:java -Dexec.mainClass=\"com.splitfriend.util.VapidKeyGenerator\"");
+                pushEnabled = false;
             }
         } else {
             log.info("Push notifications are disabled or VAPID keys not configured");

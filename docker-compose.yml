@@ -14,6 +14,11 @@ services:
       - BACKUP_AUTO_ENABLED=${BACKUP_AUTO_ENABLED:-true}
       - BACKUP_MAX_FILES=${BACKUP_MAX_FILES:-10}
       - BACKUP_CRON=${BACKUP_CRON:-0 0 2 * * ?}
+      # Push notifications disabled by default - generate VAPID keys first:
+      # mvn exec:java -Dexec.mainClass="com.splitfriend.util.VapidKeyGenerator"
+      - PUSH_ENABLED=${PUSH_ENABLED:-false}
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
     volumes:
       - splitfriend_data:/app/data
       - splitfriend_uploads:/app/uploads
