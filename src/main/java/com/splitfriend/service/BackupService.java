@@ -82,10 +82,16 @@ public class BackupService {
             throw new IllegalArgumentException("Invalid backup file. Must be a .sql file");
         }
 
-        // Save uploaded file temporarily
+        // Save uploaded file temporarily.
+        // Copy the stream rather than using transferTo: Jetty's multipart Part.writeTo
+        // MOVES its backing temp file to the destination and adopts that path, so
+        // transferTo would hand the Part ownership of our temp file. Deleting it below
+        // then makes the container's own multipart cleanup fail with NoSuchFileException.
         Path tempFile = Files.createTempFile("restore_", ".sql");
         try {
-            backupFile.transferTo(tempFile.toFile());
+            try (InputStream upload = backupFile.getInputStream()) {
+                Files.copy(upload, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            }
 
             // Validate the backup file contains expected content
             validateBackupFile(tempFile);
