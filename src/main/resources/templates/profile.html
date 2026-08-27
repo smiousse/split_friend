@@ -135,6 +135,61 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0" th:text="#{profile.apiToken.title}">API Access</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3" th:text="#{profile.apiToken.description}">
+                        Allow a local tool such as Home Assistant to read your balances.
+                    </p>
+
+                    <div th:if="${user.apiTokenEnabled}">
+                        <p class="text-success mb-2">
+                            <i class="bi bi-check-circle me-1"></i>
+                            <strong th:text="#{profile.apiToken.enabledLabel}">API access is enabled</strong>
+                        </p>
+                        <label for="api-token" class="form-label" th:text="#{profile.apiToken.tokenLabel}">Your token</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control font-monospace" id="api-token"
+                                   th:value="${user.apiToken}" readonly>
+                            <button class="btn btn-outline-secondary" type="button"
+                                    id="api-token-copy-btn" onclick="copyApiToken()"
+                                    th:data-copied="#{profile.apiToken.copied}"
+                                    th:title="#{profile.apiToken.copy}">
+                                <i class="bi bi-clipboard"></i>
+                                <span th:text="#{profile.apiToken.copy}">Copy</span>
+                            </button>
+                        </div>
+                        <p class="text-muted small mb-3" th:text="#{profile.apiToken.usage}">
+                            Send it as the X-API-Token header to GET /api/v1/balances.
+                        </p>
+                        <div class="d-flex gap-2">
+                            <form th:action="@{/profile/api-token/regenerate}" method="post">
+                                <button type="submit" class="btn btn-outline-primary"
+                                        th:text="#{profile.apiToken.regenerate}">Regenerate</button>
+                            </form>
+                            <form th:action="@{/profile/api-token/disable}" method="post"
+                                  th:data-confirm="#{profile.apiToken.confirmDisable}"
+                                  onsubmit="return confirm(this.dataset.confirm);">
+                                <button type="submit" class="btn btn-danger"
+                                        th:text="#{profile.apiToken.disable}">Disable</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div th:unless="${user.apiTokenEnabled}">
+                        <p class="text-muted" th:text="#{profile.apiToken.disabledLabel}">API access is disabled</p>
+                        <form th:action="@{/profile/api-token/enable}" method="post">
+                            <button type="submit" class="btn btn-primary"
+                                    th:text="#{profile.apiToken.enable}">Enable API Access</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

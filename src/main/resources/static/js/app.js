@@ -524,3 +524,29 @@ document.addEventListener('DOMContentLoaded', function() {
         checkPushStatus();
     }
 });
+
+// ============================================
+// API Token (profile page)
+// ============================================
+
+function copyApiToken() {
+    var input = document.getElementById('api-token');
+    var button = document.getElementById('api-token-copy-btn');
+    if (!input || !navigator.clipboard) {
+        return;
+    }
+
+    navigator.clipboard.writeText(input.value).then(function () {
+        var label = button.querySelector('span');
+        if (!label) {
+            return;
+        }
+        var original = label.textContent;
+        label.textContent = button.dataset.copied || 'Copied';
+        setTimeout(function () {
+            label.textContent = original;
+        }, 2000);
+    }).catch(function () {
+        input.select();
+    });
+}

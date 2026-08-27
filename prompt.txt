@@ -16,3 +16,14 @@ I will edit the code in eclipse if needed.
 The goal is to run this app in a docker container.
 
 Can you build it ?
+
+
+I want to be able to fetch from my home assistant the amount i'm owe or I owe for each of my groups
+
+i'm the profile page you will add an option to activate token base api, where when active the user will be able to copy a token to access a new api to fetch these information
+
+the token will be then passed in a header of the request
+
+since all of theses call will done in my local network, this type of security is enough
+
+plan it

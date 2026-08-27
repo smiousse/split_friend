@@ -56,6 +56,16 @@ public class User {
     @Builder.Default
     private Boolean enabled = true;
 
+    @Column(name = "api_token", length = 64, unique = true)
+    private String apiToken;
+
+    @Column(name = "api_token_enabled")
+    @Builder.Default
+    private Boolean apiTokenEnabled = false;
+
+    @Column(name = "api_token_created_at")
+    private LocalDateTime apiTokenCreatedAt;
+
     @Column(name = "language", length = 5)
     @Builder.Default
     private String language = "en";

@@ -1,17 +1,23 @@
 package com.splitfriend.config;
 
+import com.splitfriend.security.ApiTokenAuthFilter;
 import com.splitfriend.security.CustomUserDetailsService;
+import com.splitfriend.service.ApiTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -43,7 +49,33 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
+    /**
+     * Stateless chain for the token-authenticated read-only API consumed by
+     * clients on the local network (e.g. Home Assistant). Ordered first so it
+     * claims /api/v1/** before the session-based chain below; session auth on
+     * /api/push/** is unaffected.
+     */
     @Bean
+    @Order(1)
+    public SecurityFilterChain apiFilterChain(HttpSecurity http,
+                                              ApiTokenService apiTokenService) throws Exception {
+        http
+            .securityMatcher("/api/v1/**")
+            // Safe to disable: no cookies are used, so there is no ambient authority to forge.
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .formLogin(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .logout(AbstractHttpConfigurer::disable)
+            .rememberMe(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .addFilterBefore(new ApiTokenAuthFilter(apiTokenService), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authenticationProvider(authenticationProvider())
