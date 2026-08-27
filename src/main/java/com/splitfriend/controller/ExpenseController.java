@@ -1,12 +1,15 @@
 package com.splitfriend.controller;
 
 import com.splitfriend.dto.ExpenseDTO;
+import com.splitfriend.dto.SplitResolution;
 import com.splitfriend.model.*;
+import com.splitfriend.model.enums.SplitMode;
 import com.splitfriend.model.enums.SplitType;
 import com.splitfriend.security.CustomUserDetailsService;
 import com.splitfriend.service.ExpenseService;
 import com.splitfriend.service.ExportService;
 import com.splitfriend.service.GroupService;
+import com.splitfriend.service.SplitModeResolver;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +24,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @Controller
@@ -30,13 +34,16 @@ public class ExpenseController {
     private final ExpenseService expenseService;
     private final GroupService groupService;
     private final ExportService exportService;
+    private final SplitModeResolver splitModeResolver;
 
     public ExpenseController(ExpenseService expenseService,
                             GroupService groupService,
-                            ExportService exportService) {
+                            ExportService exportService,
+                            SplitModeResolver splitModeResolver) {
         this.expenseService = expenseService;
         this.groupService = groupService;
         this.exportService = exportService;
+        this.splitModeResolver = splitModeResolver;
     }
 
     @GetMapping("/add")
@@ -61,6 +68,7 @@ public class ExpenseController {
                 .groupId(groupId)
                 .paidById(user.getId())
                 .splitType(SplitType.EQUAL)
+                .splitMode(SplitMode.SPLIT)
                 .expenseDate(LocalDate.now())
                 .build();
 
@@ -68,6 +76,7 @@ public class ExpenseController {
         model.addAttribute("group", group);
         model.addAttribute("members", members);
         model.addAttribute("splitTypes", SplitType.values());
+        model.addAttribute("splitModes", SplitMode.values());
 
         return "expenses/add";
     }
@@ -96,6 +105,7 @@ public class ExpenseController {
                 model.addAttribute("members", groupService.getGroupMemberUsers(groupId));
             });
             model.addAttribute("splitTypes", SplitType.values());
+            model.addAttribute("splitModes", SplitMode.values());
             return "expenses/add";
         }
 
@@ -112,42 +122,28 @@ public class ExpenseController {
                 .findFirst()
                 .orElse(user);
 
-        // Get participants
-        List<User> participants;
-        if (participantIds == null || participantIds.isEmpty()) {
-            participants = groupService.getGroupMemberUsers(groupId);
-        } else {
-            List<User> allMembers = groupService.getGroupMemberUsers(groupId);
-            participants = allMembers.stream()
-                    .filter(u -> participantIds.contains(u.getId()))
-                    .collect(Collectors.toList());
+        // Resolve the quick sharing choice into a split type and participant list
+        List<User> allMembers = groupService.getGroupMemberUsers(groupId);
+        List<User> selectedMembers = selectMembers(allMembers, participantIds);
+
+        SplitResolution resolution;
+        try {
+            resolution = splitModeResolver.resolve(
+                    expenseDTO.getSplitMode(),
+                    expenseDTO.getSplitType(),
+                    allMembers,
+                    selectedMembers,
+                    payer.getId(),
+                    user.getId()
+            );
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/expenses/add?groupId=" + groupId;
         }
 
-        // Parse split values from form
-        Map<Long, BigDecimal> exactAmounts = new HashMap<>();
-        Map<Long, BigDecimal> percentages = new HashMap<>();
-        Map<Long, Integer> shares = new HashMap<>();
-
-        for (Map.Entry<String, String> entry : allParams.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-
-            if (value == null || value.isEmpty()) continue;
-
-            try {
-                if (key.startsWith("exactAmount_")) {
-                    Long userId = Long.parseLong(key.substring("exactAmount_".length()));
-                    exactAmounts.put(userId, new BigDecimal(value));
-                } else if (key.startsWith("percentage_")) {
-                    Long userId = Long.parseLong(key.substring("percentage_".length()));
-                    percentages.put(userId, new BigDecimal(value));
-                } else if (key.startsWith("shares_")) {
-                    Long userId = Long.parseLong(key.substring("shares_".length()));
-                    shares.put(userId, Integer.parseInt(value));
-                }
-            } catch (NumberFormatException ignored) {
-            }
-        }
+        Map<Long, BigDecimal> exactAmounts = parseDecimals(allParams, "exactAmount_");
+        Map<Long, BigDecimal> percentages = parseDecimals(allParams, "percentage_");
+        Map<Long, Integer> shares = parseIntegers(allParams, "shares_");
 
         try {
             expenseService.createExpense(
@@ -155,12 +151,12 @@ public class ExpenseController {
                     payer,
                     expenseDTO.getDescription(),
                     expenseDTO.getAmount(),
-                    expenseDTO.getSplitType(),
+                    resolution.splitType(),
                     expenseDTO.getExpenseDate(),
                     exactAmounts,
                     percentages,
                     shares,
-                    participants,
+                    resolution.participants(),
                     bill
             );
 
@@ -169,6 +165,41 @@ public class ExpenseController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Failed to add expense: " + e.getMessage());
             return "redirect:/expenses/add?groupId=" + groupId;
+        }
+    }
+
+    private List<User> selectMembers(List<User> allMembers, List<Long> participantIds) {
+        if (participantIds == null || participantIds.isEmpty()) {
+            return allMembers;
+        }
+        return allMembers.stream()
+                .filter(u -> participantIds.contains(u.getId()))
+                .collect(Collectors.toList());
+    }
+
+    private Map<Long, BigDecimal> parseDecimals(Map<String, String> params, String prefix) {
+        Map<Long, BigDecimal> values = new HashMap<>();
+        forEachPrefixed(params, prefix, (userId, value) -> values.put(userId, new BigDecimal(value)));
+        return values;
+    }
+
+    private Map<Long, Integer> parseIntegers(Map<String, String> params, String prefix) {
+        Map<Long, Integer> values = new HashMap<>();
+        forEachPrefixed(params, prefix, (userId, value) -> values.put(userId, Integer.parseInt(value)));
+        return values;
+    }
+
+    private void forEachPrefixed(Map<String, String> params, String prefix, BiConsumer<Long, String> consumer) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            if (value == null || value.isEmpty() || !key.startsWith(prefix)) continue;
+
+            try {
+                consumer.accept(Long.parseLong(key.substring(prefix.length())), value);
+            } catch (NumberFormatException ignored) {
+            }
         }
     }
 

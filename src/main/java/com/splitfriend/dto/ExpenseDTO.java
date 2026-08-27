@@ -1,5 +1,6 @@
 package com.splitfriend.dto;
 
+import com.splitfriend.model.enums.SplitMode;
 import com.splitfriend.model.enums.SplitType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +35,9 @@ public class ExpenseDTO {
 
     @NotNull(message = "Split type is required")
     private SplitType splitType;
+
+    /** Quick sharing choice; resolved server-side. Defaults to SPLIT when absent. */
+    private SplitMode splitMode;
 
     private LocalDate expenseDate;
 

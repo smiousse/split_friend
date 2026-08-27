@@ -2,6 +2,7 @@ package com.splitfriend.controller;
 
 import com.splitfriend.dto.BalanceDTO;
 import com.splitfriend.dto.GroupDTO;
+import com.splitfriend.model.Expense;
 import com.splitfriend.model.Group;
 import com.splitfriend.model.GroupMember;
 import com.splitfriend.model.User;
@@ -95,8 +96,10 @@ public class GroupController {
         List<BalanceDTO> balances = balanceService.getDetailedBalances(id);
         List<BalanceDTO.DebtDTO> debts = balanceService.calculateDebts(id);
         BigDecimal totalExpenses = expenseService.getTotalExpensesByGroup(id);
+        List<Expense> expenses = expenseService.findByGroupId(id);
 
         model.addAttribute("group", group);
+        model.addAttribute("expenses", expenses);
         model.addAttribute("members", members);
         model.addAttribute("balances", balances);
         model.addAttribute("debts", debts);

@@ -53,16 +53,59 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="splitType" class="form-label"><span th:text="#{expense.splitType}">Split Type</span> *</label>
-                            <select class="form-select" id="splitType" th:field="*{splitType}" onchange="updateSplitUI()">
-                                <option value="EQUAL" th:text="#{expense.splitType.equal}">Equal - Split equally among selected members</option>
-                                <option value="EXACT" th:text="#{expense.splitType.exact}">Exact amounts - Enter specific amounts per person</option>
-                                <option value="PERCENTAGE" th:text="#{expense.splitType.percentage}">Percentage - Enter percentage per person</option>
-                                <option value="SHARES" th:text="#{expense.splitType.shares}">Shares - Enter share weights per person</option>
-                            </select>
+                            <label class="form-label" th:text="#{expense.splitMode}">Sharing options</label>
+                            <input type="hidden" id="splitMode" th:field="*{splitMode}">
+                            <div class="d-grid gap-2" role="group" th:aria-label="#{expense.splitMode}">
+                                <button type="button" class="btn btn-outline-primary split-mode-btn" data-mode="SPLIT"
+                                        onclick="setSplitMode('SPLIT')" th:text="#{expense.splitMode.split}">Split the expense</button>
+                                <button type="button" class="btn btn-outline-primary split-mode-btn" data-mode="I_OWE_ALL"
+                                        onclick="setSplitMode('I_OWE_ALL')" th:text="#{expense.splitMode.iOweAll}">You owe the full amount</button>
+                                <button type="button" class="btn btn-outline-primary split-mode-btn" data-mode="THEY_OWE_ALL"
+                                        onclick="setSplitMode('THEY_OWE_ALL')" th:text="#{expense.splitMode.theyOweAll}">They owe the full amount</button>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" id="splitModeSummary" style="display:none;">
+                            <div class="alert alert-light border mb-0 py-2 small">
+                                <span id="summaryIOweAll" th:text="#{expense.splitMode.iOweAllSummary}">You owe the full amount of this expense.</span>
+                                <span id="summaryTheyOweAll" th:text="#{expense.splitMode.theyOweAllSummary}">Everyone else owes the full amount to the payer.</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="splitTypeSection">
+                            <label class="form-label"><span th:text="#{expense.splitType}">Split Type</span> *</label>
+                            <input type="hidden" id="splitType" th:field="*{splitType}">
+                            <div class="btn-group d-flex flex-wrap" role="group" th:aria-label="#{expense.splitType}">
+                                <button type="button" class="btn btn-outline-secondary split-type-btn" data-type="EQUAL"
+                                        th:title="#{expense.splitType.equal}" onclick="setSplitType('EQUAL')">
+                                    <span aria-hidden="true">=</span>
+                                    <span class="visually-hidden" th:text="#{expense.splitType.equal.short}">Equal</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary split-type-btn" data-type="EXACT"
+                                        th:title="#{expense.splitType.exact}" onclick="setSplitType('EXACT')">
+                                    <span aria-hidden="true">1.23</span>
+                                    <span class="visually-hidden" th:text="#{expense.splitType.exact.short}">Amounts</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary split-type-btn" data-type="PERCENTAGE"
+                                        th:title="#{expense.splitType.percentage}" onclick="setSplitType('PERCENTAGE')">
+                                    <span aria-hidden="true">%</span>
+                                    <span class="visually-hidden" th:text="#{expense.splitType.percentage.short}">Percent</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary split-type-btn" data-type="SHARES"
+                                        th:title="#{expense.splitType.shares}" onclick="setSplitType('SHARES')">
+                                    <span aria-hidden="true">1:2</span>
+                                    <span class="visually-hidden" th:text="#{expense.splitType.shares.short}">Shares</span>
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                <span class="split-type-desc" data-type="EQUAL" th:text="#{expense.splitType.equal}">Equal</span>
+                                <span class="split-type-desc" data-type="EXACT" th:text="#{expense.splitType.exact}">Exact</span>
+                                <span class="split-type-desc" data-type="PERCENTAGE" th:text="#{expense.splitType.percentage}">Percentage</span>
+                                <span class="split-type-desc" data-type="SHARES" th:text="#{expense.splitType.shares}">Shares</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="participantsSection">
                             <label class="form-label"><span th:text="#{expense.splitAmong}">Split among</span> *</label>
                             <div class="card">
                                 <div class="card-body" id="participantsList">
@@ -124,35 +167,134 @@
 
 <div th:replace="~{layout/main :: scripts}"></div>
 <script>
-function updateSplitUI() {
-    const splitType = document.getElementById('splitType').value;
-    const containers = document.querySelectorAll('.split-input-container');
-    const exactInputs = document.querySelectorAll('.exact-input');
-    const percentageInputs = document.querySelectorAll('.percentage-input');
-    const sharesInputs = document.querySelectorAll('.shares-input');
+const SPLIT_MODE_SPLIT = 'SPLIT';
+let lastSplitType = document.getElementById('splitType').value || 'EQUAL';
 
-    // Hide all first
-    containers.forEach(c => c.style.display = 'none');
-    exactInputs.forEach(i => i.style.display = 'none');
-    percentageInputs.forEach(i => i.style.display = 'none');
-    sharesInputs.forEach(i => i.style.display = 'none');
-
-    if (splitType === 'EQUAL') {
-        return;
-    }
-
-    containers.forEach(c => c.style.display = 'block');
-
-    if (splitType === 'EXACT') {
-        exactInputs.forEach(i => i.style.display = 'block');
-    } else if (splitType === 'PERCENTAGE') {
-        percentageInputs.forEach(i => i.style.display = 'block');
-    } else if (splitType === 'SHARES') {
-        sharesInputs.forEach(i => i.style.display = 'block');
-    }
+function currentMode() {
+    return document.getElementById('splitMode').value || SPLIT_MODE_SPLIT;
 }
 
-document.addEventListener('DOMContentLoaded', updateSplitUI);
+function currentSplitType() {
+    return document.getElementById('splitType').value || 'EQUAL';
+}
+
+function memberCount() {
+    return document.querySelectorAll('.participant-row').length;
+}
+
+function payerId() {
+    return document.getElementById('paidById').value;
+}
+
+function setSplitMode(mode) {
+    document.getElementById('splitMode').value = mode;
+
+    if (mode === SPLIT_MODE_SPLIT) {
+        document.getElementById('splitType').value = lastSplitType;
+    } else {
+        document.getElementById('splitType').value = 'EQUAL';
+    }
+
+    refreshSplitUI();
+}
+
+function setSplitType(type) {
+    lastSplitType = type;
+    document.getElementById('splitType').value = type;
+    refreshSplitUI();
+}
+
+// Number of people the expense will actually be charged to, mirroring
+// SplitModeResolver on the server.
+function resolvedParticipantCount() {
+    const mode = currentMode();
+
+    if (mode === 'I_OWE_ALL') {
+        return 1;
+    }
+    if (mode === 'THEY_OWE_ALL') {
+        return Math.max(memberCount() - 1, 0);
+    }
+    return memberCount();
+}
+
+function updateModeButtons() {
+    const mode = currentMode();
+    document.querySelectorAll('.split-mode-btn').forEach(btn => {
+        const active = btn.dataset.mode === mode;
+        btn.classList.toggle('btn-primary', active);
+        btn.classList.toggle('btn-outline-primary', !active);
+    });
+
+    const isSplit = mode === SPLIT_MODE_SPLIT;
+    document.getElementById('splitTypeSection').style.display = isSplit ? 'block' : 'none';
+    document.getElementById('splitModeSummary').style.display = isSplit ? 'none' : 'block';
+    document.getElementById('summaryIOweAll').style.display = mode === 'I_OWE_ALL' ? 'inline' : 'none';
+    document.getElementById('summaryTheyOweAll').style.display = mode === 'THEY_OWE_ALL' ? 'inline' : 'none';
+}
+
+function updateSplitTypeButtons() {
+    const type = currentSplitType();
+    document.querySelectorAll('.split-type-btn').forEach(btn => {
+        const active = btn.dataset.type === type;
+        btn.classList.toggle('btn-secondary', active);
+        btn.classList.toggle('btn-outline-secondary', !active);
+    });
+    document.querySelectorAll('.split-type-desc').forEach(desc => {
+        desc.style.display = desc.dataset.type === type ? 'inline' : 'none';
+    });
+}
+
+// Per-participant inputs: only meaningful when sharing the expense.
+function updateParticipantInputs() {
+    const showInputs = currentMode() === SPLIT_MODE_SPLIT;
+    const type = currentSplitType();
+
+    document.querySelectorAll('.split-input-container').forEach(c => {
+        c.style.display = (showInputs && type !== 'EQUAL') ? 'block' : 'none';
+    });
+
+    const byType = {EXACT: '.exact-input', PERCENTAGE: '.percentage-input', SHARES: '.shares-input'};
+    Object.entries(byType).forEach(([splitType, selector]) => {
+        document.querySelectorAll(selector).forEach(i => {
+            i.style.display = (showInputs && type === splitType) ? 'block' : 'none';
+        });
+    });
+}
+
+// Hide the "Split among" block when a single person ends up paying the
+// expense back, and hide the payer row when only the others owe.
+function updateParticipantsVisibility() {
+    const section = document.getElementById('participantsSection');
+    section.style.display = resolvedParticipantCount() > 1 ? 'block' : 'none';
+
+    const hidePayerRow = currentMode() === 'THEY_OWE_ALL';
+    document.querySelectorAll('.participant-row').forEach(row => {
+        const checkbox = row.querySelector('input[name="participantIds"]');
+        const isPayer = checkbox && checkbox.value === payerId();
+        row.style.display = (hidePayerRow && isPayer) ? 'none' : 'block';
+    });
+}
+
+function refreshSplitUI() {
+    updateModeButtons();
+    updateSplitTypeButtons();
+    updateParticipantInputs();
+    updateParticipantsVisibility();
+}
+
+// Kept for backwards compatibility with the previous select-based UI.
+function updateSplitUI() {
+    refreshSplitUI();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('paidById').addEventListener('change', updateParticipantsVisibility);
+    document.querySelectorAll('input[name="participantIds"]').forEach(cb => {
+        cb.addEventListener('change', updateParticipantInputs);
+    });
+    refreshSplitUI();
+});
 </script>
 </body>
 </html>
