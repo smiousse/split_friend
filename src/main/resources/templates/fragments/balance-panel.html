@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  Per-person balance panel, shared by the dashboard and the group view.
+  Both fragments take a com.splitfriend.dto.PersonalBalance.
+-->
+
+<!-- Three totals: net position, what you owe, what you are owed -->
+<div th:fragment="totals(summary)" class="row g-0 balance-totals text-center">
+    <div class="col-4 balance-total">
+        <div class="balance-total-label" th:text="#{dashboard.totalBalance}">Total balance</div>
+        <div class="balance-total-amount"
+             th:classappend="${summary.net.signum() < 0} ? 'amount-negative' : 'amount-positive'">
+            <span th:if="${summary.net.signum() < 0}">-&nbsp;</span>$<span
+                th:text="${#numbers.formatDecimal(summary.net.abs(), 1, 2)}">0.00</span>
+        </div>
+    </div>
+    <div class="col-4 balance-total">
+        <div class="balance-total-label" th:text="#{dashboard.youOwe}">You owe</div>
+        <div class="balance-total-amount amount-negative">
+            $<span th:text="${#numbers.formatDecimal(summary.totalIOwe, 1, 2)}">0.00</span>
+        </div>
+    </div>
+    <div class="col-4 balance-total">
+        <div class="balance-total-label" th:text="#{dashboard.youAreOwed}">You are owed</div>
+        <div class="balance-total-amount amount-positive">
+            $<span th:text="${#numbers.formatDecimal(summary.totalOwedToMe, 1, 2)}">0.00</span>
+        </div>
+    </div>
+</div>
+
+<!-- Two columns: who you owe, who owes you -->
+<div th:fragment="people(summary)">
+    <div th:if="${summary.settled}" class="balance-settled">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="#{dashboard.allSettled}">You're all settled up</span>
+    </div>
+
+    <div th:unless="${summary.settled}" class="row g-0">
+        <div class="col-md-6 balance-col">
+            <div class="balance-col-header" th:text="#{dashboard.youOwe}">You owe</div>
+            <div th:if="${#lists.isEmpty(summary.iOwe)}" class="balance-col-empty"
+                 th:text="#{dashboard.nobody}">Nobody</div>
+            <div th:each="person : ${summary.iOwe}" class="balance-person">
+                <div class="person-avatar" th:classappend="'avatar-c' + ${person.userId % 6}"
+                     th:text="${#strings.toUpperCase(#strings.substring(person.name, 0, 1))}">A</div>
+                <div>
+                    <div class="balance-person-name" th:text="${person.name}">Name</div>
+                    <div class="balance-person-amount amount-negative">
+                        <span th:text="#{dashboard.youOwe}">you owe</span>
+                        $<span th:text="${#numbers.formatDecimal(person.amount, 1, 2)}">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 balance-col balance-col-divider">
+            <div class="balance-col-header text-md-end" th:text="#{dashboard.youAreOwed}">You are owed</div>
+            <div th:if="${#lists.isEmpty(summary.owedToMe)}" class="balance-col-empty text-md-end"
+                 th:text="#{dashboard.nobody}">Nobody</div>
+            <div th:each="person : ${summary.owedToMe}" class="balance-person">
+                <div class="person-avatar" th:classappend="'avatar-c' + ${person.userId % 6}"
+                     th:text="${#strings.toUpperCase(#strings.substring(person.name, 0, 1))}">B</div>
+                <div>
+                    <div class="balance-person-name" th:text="${person.name}">Name</div>
+                    <div class="balance-person-amount amount-positive">
+                        <span th:text="#{dashboard.owesYou}">owes you</span>
+                        $<span th:text="${#numbers.formatDecimal(person.amount, 1, 2)}">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

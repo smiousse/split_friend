@@ -10,6 +10,7 @@ import com.splitfriend.security.CustomUserDetailsService;
 import com.splitfriend.service.BalanceService;
 import com.splitfriend.service.ExpenseService;
 import com.splitfriend.service.GroupService;
+import com.splitfriend.service.PersonalBalanceService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -29,13 +30,16 @@ public class GroupController {
 
     private final GroupService groupService;
     private final BalanceService balanceService;
+    private final PersonalBalanceService personalBalanceService;
     private final ExpenseService expenseService;
 
     public GroupController(GroupService groupService,
                           BalanceService balanceService,
+                          PersonalBalanceService personalBalanceService,
                           ExpenseService expenseService) {
         this.groupService = groupService;
         this.balanceService = balanceService;
+        this.personalBalanceService = personalBalanceService;
         this.expenseService = expenseService;
     }
 
@@ -105,6 +109,7 @@ public class GroupController {
         model.addAttribute("debts", debts);
         model.addAttribute("totalExpenses", totalExpenses);
         model.addAttribute("currentUserId", user.getId());
+        model.addAttribute("groupSummary", personalBalanceService.summarizeInGroup(user, id));
 
         return "groups/view";
     }

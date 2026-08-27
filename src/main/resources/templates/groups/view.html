@@ -23,6 +23,14 @@
         </div>
     </div>
 
+    <!-- Your position in this group -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0" th:text="#{group.view.yourBalances}">Your balances</h5>
+        </div>
+        <div th:replace="~{fragments/balance-panel :: people(${groupSummary})}"></div>
+    </div>
+
     <div class="row">
         <!-- Balances -->
         <div class="col-lg-4 mb-4">

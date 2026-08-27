@@ -1,11 +1,12 @@
 package com.splitfriend.controller;
 
-import com.splitfriend.dto.BalanceDTO;
+import com.splitfriend.dto.PersonalBalance;
 import com.splitfriend.model.Group;
 import com.splitfriend.model.User;
 import com.splitfriend.security.CustomUserDetailsService;
 import com.splitfriend.service.BalanceService;
 import com.splitfriend.service.GroupService;
+import com.splitfriend.service.PersonalBalanceService;
 import com.splitfriend.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -27,15 +28,18 @@ public class DashboardController {
 
     private final GroupService groupService;
     private final BalanceService balanceService;
+    private final PersonalBalanceService personalBalanceService;
     private final UserService userService;
     private final MessageSource messageSource;
 
     public DashboardController(GroupService groupService,
                                BalanceService balanceService,
+                               PersonalBalanceService personalBalanceService,
                                UserService userService,
                                MessageSource messageSource) {
         this.groupService = groupService;
         this.balanceService = balanceService;
+        this.personalBalanceService = personalBalanceService;
         this.userService = userService;
         this.messageSource = messageSource;
     }
@@ -46,28 +50,21 @@ public class DashboardController {
         User user = userDetails.getUser();
         List<Group> groups = groupService.findByUser(user);
 
-        // Calculate balances for each group
+        // Net position per group, for the pill on each group card
         Map<Long, BigDecimal> groupBalances = new HashMap<>();
-        BigDecimal totalOwed = BigDecimal.ZERO;
-        BigDecimal totalOwing = BigDecimal.ZERO;
-
         for (Group group : groups) {
-            BigDecimal balance = balanceService.getUserBalanceInGroup(group.getId(), user.getId());
-            groupBalances.put(group.getId(), balance);
-
-            if (balance.compareTo(BigDecimal.ZERO) > 0) {
-                totalOwed = totalOwed.add(balance);
-            } else {
-                totalOwing = totalOwing.add(balance.abs());
-            }
+            groupBalances.put(group.getId(),
+                    balanceService.getUserBalanceInGroup(group.getId(), user.getId()));
         }
+
+        // Totals come from the same summary that feeds the per-person lists, so
+        // the tiles and the names below them can never disagree
+        PersonalBalance summary = personalBalanceService.summarize(user);
 
         model.addAttribute("user", user);
         model.addAttribute("groups", groups);
         model.addAttribute("groupBalances", groupBalances);
-        model.addAttribute("totalOwed", totalOwed);
-        model.addAttribute("totalOwing", totalOwing);
-        model.addAttribute("netBalance", totalOwed.subtract(totalOwing));
+        model.addAttribute("summary", summary);
 
         return "dashboard";
     }

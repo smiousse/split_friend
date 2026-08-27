@@ -20,59 +20,10 @@
         </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="card summary-card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="card-subtitle mb-2 opacity-75">
-                                <i class="bi bi-arrow-down-circle me-1"></i> <span th:text="#{dashboard.youAreOwed}">You are owed</span>
-                            </h6>
-                            <h3 class="card-title mb-0">
-                                $<span th:text="${#numbers.formatDecimal(totalOwed, 1, 2)}">0.00</span>
-                            </h3>
-                        </div>
-                        <i class="bi bi-cash-stack fs-1 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card summary-card bg-danger text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="card-subtitle mb-2 opacity-75">
-                                <i class="bi bi-arrow-up-circle me-1"></i> <span th:text="#{dashboard.youOwe}">You owe</span>
-                            </h6>
-                            <h3 class="card-title mb-0">
-                                $<span th:text="${#numbers.formatDecimal(totalOwing, 1, 2)}">0.00</span>
-                            </h3>
-                        </div>
-                        <i class="bi bi-credit-card fs-1 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div th:class="${netBalance >= 0} ? 'card summary-card bg-primary text-white' : 'card summary-card bg-warning text-dark'">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="card-subtitle mb-2 opacity-75">
-                                <i class="bi bi-graph-up me-1"></i> <span th:text="#{dashboard.netBalance}">Net Balance</span>
-                            </h6>
-                            <h3 class="card-title mb-0">
-                                $<span th:text="${#numbers.formatDecimal(netBalance, 1, 2)}">0.00</span>
-                            </h3>
-                        </div>
-                        <i class="bi bi-wallet2 fs-1 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Balance Overview -->
+    <div class="card mb-4">
+        <div th:replace="~{fragments/balance-panel :: totals(${summary})}"></div>
+        <div th:replace="~{fragments/balance-panel :: people(${summary})}"></div>
     </div>
 
     <!-- Groups Section -->
