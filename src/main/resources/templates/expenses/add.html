@@ -66,7 +66,7 @@
                         </div>
 
                         <div class="mb-3" id="splitModeSummary" style="display:none;">
-                            <div class="alert alert-light border mb-0 py-2 small">
+                            <div class="alert alert-light alert-permanent border mb-0 py-2 small">
                                 <span id="summaryIOweAll" th:text="#{expense.splitMode.iOweAllSummary}">You owe the full amount of this expense.</span>
                                 <span id="summaryTheyOweAll" th:text="#{expense.splitMode.theyOweAllSummary}">Everyone else owes the full amount to the payer.</span>
                             </div>
@@ -170,6 +170,14 @@
 const SPLIT_MODE_SPLIT = 'SPLIT';
 let lastSplitType = document.getElementById('splitType').value || 'EQUAL';
 
+// Tolerates a missing node so one absent element cannot abort the refresh.
+function setDisplay(id, value) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.style.display = value;
+    }
+}
+
 function currentMode() {
     return document.getElementById('splitMode').value || SPLIT_MODE_SPLIT;
 }
@@ -227,10 +235,10 @@ function updateModeButtons() {
     });
 
     const isSplit = mode === SPLIT_MODE_SPLIT;
-    document.getElementById('splitTypeSection').style.display = isSplit ? 'block' : 'none';
-    document.getElementById('splitModeSummary').style.display = isSplit ? 'none' : 'block';
-    document.getElementById('summaryIOweAll').style.display = mode === 'I_OWE_ALL' ? 'inline' : 'none';
-    document.getElementById('summaryTheyOweAll').style.display = mode === 'THEY_OWE_ALL' ? 'inline' : 'none';
+    setDisplay('splitTypeSection', isSplit ? 'block' : 'none');
+    setDisplay('splitModeSummary', isSplit ? 'none' : 'block');
+    setDisplay('summaryIOweAll', mode === 'I_OWE_ALL' ? 'inline' : 'none');
+    setDisplay('summaryTheyOweAll', mode === 'THEY_OWE_ALL' ? 'inline' : 'none');
 }
 
 function updateSplitTypeButtons() {
@@ -265,8 +273,7 @@ function updateParticipantInputs() {
 // Hide the "Split among" block when a single person ends up paying the
 // expense back, and hide the payer row when only the others owe.
 function updateParticipantsVisibility() {
-    const section = document.getElementById('participantsSection');
-    section.style.display = resolvedParticipantCount() > 1 ? 'block' : 'none';
+    setDisplay('participantsSection', resolvedParticipantCount() > 1 ? 'block' : 'none');
 
     const hidePayerRow = currentMode() === 'THEY_OWE_ALL';
     document.querySelectorAll('.participant-row').forEach(row => {
@@ -277,10 +284,16 @@ function updateParticipantsVisibility() {
 }
 
 function refreshSplitUI() {
-    updateModeButtons();
-    updateSplitTypeButtons();
-    updateParticipantInputs();
-    updateParticipantsVisibility();
+    // Each step is independent: a failure in one must not leave the
+    // participants list in a stale state.
+    [updateModeButtons, updateSplitTypeButtons, updateParticipantInputs, updateParticipantsVisibility]
+        .forEach(step => {
+            try {
+                step();
+            } catch (error) {
+                console.error('Split UI refresh step failed:', error);
+            }
+        });
 }
 
 // Kept for backwards compatibility with the previous select-based UI.
