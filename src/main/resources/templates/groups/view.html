@@ -32,6 +32,50 @@
     </div>
 
     <div class="row">
+        <!-- Expenses -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0" th:text="#{group.view.expenses}">Expenses</h5>
+                    <a th:href="@{/expenses/export(groupId=${group.id})}" class="btn btn-sm btn-outline-secondary" th:text="#{group.view.exportCsv}">Export CSV</a>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(expenses)}" class="text-center text-muted py-4">
+                        <span th:text="#{group.view.noExpenses}">No expenses yet.</span> <a th:href="@{/expenses/add(groupId=${group.id})}" th:text="#{group.view.addFirstExpense}">Add your first expense</a>.
+                    </div>
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(expenses)}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th th:text="#{expense.table.date}">Date</th>
+                                    <th th:text="#{expense.table.description}">Description</th>
+                                    <th th:text="#{expense.table.paidBy}">Paid by</th>
+                                    <th class="text-end" th:text="#{expense.table.amount}">Amount</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="expense : ${expenses}">
+                                    <td th:text="${#temporals.format(expense.expenseDate, 'MMM d')}">Jan 1</td>
+                                    <td>
+                                        <a th:href="@{/expenses/{id}(id=${expense.id})}" th:text="${expense.description}">Expense</a>
+                                    </td>
+                                    <td th:text="${expense.paidBy.name}">User</td>
+                                    <td class="text-end">$<span th:text="${#numbers.formatDecimal(expense.amount, 1, 2)}">0.00</span></td>
+                                    <td>
+                                        <form th:action="@{/expenses/{id}/delete(id=${expense.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    th:attr="onclick=|return confirm('#{expense.deleteExpenseConfirm}')|" th:text="#{expense.deleteExpense}">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Balances -->
         <div class="col-lg-4 mb-4">
             <div class="card">
@@ -74,75 +118,30 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Members and Expenses -->
-        <div class="col-lg-8">
-            <!-- Members -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0" th:text="#{group.view.members}">Members</h5>
-                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal" th:text="#{group.view.addMember}">
-                        Add Member
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div th:each="member : ${members}" class="col-md-6 mb-2">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <strong th:text="${member.user.name}">User Name</strong>
-                                    <br><small class="text-muted" th:text="${member.user.email}">email@example.com</small>
-                                </div>
-                                <form th:if="${member.user.id != group.createdBy.id && group.createdBy.id == currentUserId}"
-                                      th:action="@{/groups/{gid}/remove-member/{uid}(gid=${group.id}, uid=${member.user.id})}"
-                                      method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                                            th:attr="onclick=|return confirm('#{group.view.removeMemberConfirm}')|" th:text="#{group.view.removeMember}">Remove</button>
-                                </form>
-                            </div>
+    <!-- Members -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0" th:text="#{group.view.members}">Members</h5>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal" th:text="#{group.view.addMember}">
+                Add Member
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div th:each="member : ${members}" class="col-md-6 mb-2">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <strong th:text="${member.user.name}">User Name</strong>
+                            <br><small class="text-muted" th:text="${member.user.email}">email@example.com</small>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Expenses -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0" th:text="#{group.view.expenses}">Expenses</h5>
-                    <a th:href="@{/expenses/export(groupId=${group.id})}" class="btn btn-sm btn-outline-secondary" th:text="#{group.view.exportCsv}">Export CSV</a>
-                </div>
-                <div class="card-body">
-                    <div th:if="${#lists.isEmpty(expenses)}" class="text-center text-muted py-4">
-                        <span th:text="#{group.view.noExpenses}">No expenses yet.</span> <a th:href="@{/expenses/add(groupId=${group.id})}" th:text="#{group.view.addFirstExpense}">Add your first expense</a>.
-                    </div>
-                    <div class="table-responsive" th:unless="${#lists.isEmpty(expenses)}">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th th:text="#{expense.table.date}">Date</th>
-                                    <th th:text="#{expense.table.description}">Description</th>
-                                    <th th:text="#{expense.table.paidBy}">Paid by</th>
-                                    <th class="text-end" th:text="#{expense.table.amount}">Amount</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="expense : ${expenses}">
-                                    <td th:text="${#temporals.format(expense.expenseDate, 'MMM d')}">Jan 1</td>
-                                    <td>
-                                        <a th:href="@{/expenses/{id}(id=${expense.id})}" th:text="${expense.description}">Expense</a>
-                                    </td>
-                                    <td th:text="${expense.paidBy.name}">User</td>
-                                    <td class="text-end">$<span th:text="${#numbers.formatDecimal(expense.amount, 1, 2)}">0.00</span></td>
-                                    <td>
-                                        <form th:action="@{/expenses/{id}/delete(id=${expense.id})}" method="post" class="d-inline">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    th:attr="onclick=|return confirm('#{expense.deleteExpenseConfirm}')|" th:text="#{expense.deleteExpense}">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <form th:if="${member.user.id != group.createdBy.id && group.createdBy.id == currentUserId}"
+                              th:action="@{/groups/{gid}/remove-member/{uid}(gid=${group.id}, uid=${member.user.id})}"
+                              method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    th:attr="onclick=|return confirm('#{group.view.removeMemberConfirm}')|" th:text="#{group.view.removeMember}">Remove</button>
+                        </form>
                     </div>
                 </div>
             </div>
