@@ -27,3 +27,23 @@ the token will be then passed in a header of the request
 since all of theses call will done in my local network, this type of security is enough
 
 plan it
+
+
+
+------------------------------------------------------------
+
+You will add a new menu Budget, that will be available for user where admin enable budget option
+
+this budget its not related to the expenses or group.
+
+Buget represent all the recurring expense for an house, like internet, hypoteque.
+A budget is between 2 users selected when creating the budget.
+
+Expense are per use, then total of the budget is separate in a percentage defined when creating the budget.
+
+it allow to calculate How witch user must send to the other each month.
+
+see this excel file for an example.
+/home/smiousse/Dépenses communes.xlsx
+
+make a plan to add this feature to the app

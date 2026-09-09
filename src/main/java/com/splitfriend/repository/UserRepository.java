@@ -31,4 +31,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u JOIN u.groupMemberships gm WHERE gm.group.id = :groupId")
     List<User> findByGroupId(@Param("groupId") Long groupId);
+
+    /**
+     * Reads just the budget flag, fresh from the database.
+     *
+     * The authenticated principal wraps a {@code User} snapshot taken at login
+     * and remember-me runs for 30 days, so reading the flag off the principal
+     * would keep showing the feature for a month after an admin revoked it.
+     */
+    @Query("SELECT u.budgetEnabled FROM User u WHERE u.id = :id")
+    Optional<Boolean> findBudgetEnabledById(@Param("id") Long id);
+
+    List<User> findByBudgetEnabledTrueOrderByNameAsc();
 }

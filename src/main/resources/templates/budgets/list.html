@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Budgets - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 th:text="#{budget.list.title}">Budgets</h2>
+        <a th:href="@{/budgets/create}" class="btn btn-success">
+            <i class="bi bi-plus-lg me-1"></i> <span th:text="#{budget.list.create}">New Budget</span>
+        </a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(budgets)}" class="card">
+        <div class="card-body text-center text-muted py-5">
+            <i class="bi bi-house-heart fs-1 d-block mb-3"></i>
+            <p th:text="#{budget.list.empty}">No budgets yet.</p>
+            <a th:href="@{/budgets/create}" th:text="#{budget.list.createFirst}">Create your first budget</a>
+        </div>
+    </div>
+
+    <div class="row" th:unless="${#lists.isEmpty(budgets)}">
+        <div class="col-md-6 col-lg-4 mb-4" th:each="b : ${budgets}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a th:href="@{/budgets/{id}(id=${b.id})}" th:text="${b.name}" class="text-decoration-none">Budget</a>
+                    </h5>
+                    <p class="card-text text-muted small" th:text="${b.description}">Description</p>
+                    <p class="mb-1">
+                        <i class="bi bi-people me-1"></i>
+                        <span th:text="${b.userA.name}">A</span>
+                        <span class="text-muted">&amp;</span>
+                        <span th:text="${b.userB.name}">B</span>
+                    </p>
+                    <p class="mb-0">
+                        <span class="badge bg-secondary"
+                              th:text="${#numbers.formatDecimal(b.shareAPercent, 1, 0)} + ' / ' + ${#numbers.formatDecimal(b.shareBPercent, 1, 0)}">50 / 50</span>
+                        <span class="badge bg-light text-dark" th:text="#{'budget.frequency.' + ${b.settlementPeriod}}">Bi-weekly</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

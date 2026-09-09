@@ -156,6 +156,27 @@ public class UserManagementController {
         return "redirect:/admin/users/" + id;
     }
 
+    @PostMapping("/{id}/budget-enable")
+    public String enableBudget(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return setBudgetEnabled(id, true, redirectAttributes);
+    }
+
+    @PostMapping("/{id}/budget-disable")
+    public String disableBudget(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return setBudgetEnabled(id, false, redirectAttributes);
+    }
+
+    private String setBudgetEnabled(Long id, boolean enabled, RedirectAttributes redirectAttributes) {
+        if (userService.findById(id).isEmpty()) {
+            return "redirect:/admin/users?error=notfound";
+        }
+
+        userService.setBudgetEnabled(id, enabled);
+        redirectAttributes.addFlashAttribute("message",
+                enabled ? "Budget feature enabled for user" : "Budget feature disabled for user");
+        return "redirect:/admin/users/" + id;
+    }
+
     @PostMapping("/{id}/disable-2fa")
     public String disableUserTotp(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         Optional<User> userOpt = userService.findById(id);

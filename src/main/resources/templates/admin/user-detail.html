@@ -54,6 +54,13 @@
                                 </td>
                             </tr>
                             <tr>
+                                <th th:text="#{admin.users.table.budget}">Budget</th>
+                                <td>
+                                    <span th:if="${user.budgetEnabled}" class="badge bg-info" th:text="#{admin.users.budget.enabled}">Enabled</span>
+                                    <span th:unless="${user.budgetEnabled}" class="badge bg-light text-dark" th:text="#{admin.users.budget.off}">Disabled</span>
+                                </td>
+                            </tr>
+                            <tr>
                                 <th th:text="#{admin.users.table.created}">Created</th>
                                 <td th:text="${#temporals.format(user.createdAt, 'MMMM d, yyyy HH:mm')}">Date</td>
                             </tr>
@@ -98,6 +105,29 @@
                         </div>
                         <button type="submit" class="btn btn-warning" th:text="#{admin.users.detail.resetPassword}">Reset Password</button>
                     </form>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0" th:text="#{admin.users.detail.features}">Features</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong th:text="#{admin.users.detail.budgetFeature}">Budget</strong>
+                            <br><small class="text-muted" th:text="#{admin.users.detail.budgetFeatureHelp}">Lets this user create shared household budgets.</small>
+                        </div>
+                        <form th:if="${user.budgetEnabled}" th:action="@{/admin/users/{id}/budget-disable(id=${user.id})}" method="post">
+                            <button type="submit" class="btn btn-outline-warning"
+                                    th:text="#{admin.users.detail.disableBudget}">Disable Budget feature</button>
+                        </form>
+                        <form th:unless="${user.budgetEnabled}" th:action="@{/admin/users/{id}/budget-enable(id=${user.id})}" method="post">
+                            <button type="submit" class="btn btn-outline-info"
+                                    th:text="#{admin.users.detail.enableBudget}">Enable Budget feature</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 

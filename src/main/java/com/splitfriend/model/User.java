@@ -66,6 +66,15 @@ public class User {
     @Column(name = "api_token_created_at")
     private LocalDateTime apiTokenCreatedAt;
 
+    /**
+     * Whether an admin has granted this user the Budget feature. Nullable
+     * because {@code ddl-auto: update} adds the column to existing rows
+     * without a value; read it through {@code Boolean.TRUE.equals}.
+     */
+    @Column(name = "budget_enabled")
+    @Builder.Default
+    private Boolean budgetEnabled = false;
+
     @Column(name = "language", length = 5)
     @Builder.Default
     private String language = "en";

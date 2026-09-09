@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title th:text="${budget.name} + ' - SplitFriend'">Budget - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h2 th:text="${budget.name}">Budget</h2>
+            <p class="text-muted mb-1" th:text="${budget.description}">Description</p>
+            <span class="badge bg-secondary" th:text="${budget.currency}">CAD</span>
+            <span class="badge bg-light text-dark" th:text="#{'budget.frequency.' + ${budget.settlementPeriod}}">Bi-weekly</span>
+        </div>
+        <div class="btn-group" th:if="${currentSide != null}">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addItemModal" th:text="#{budget.view.addItem}">Add Line</button>
+            <a th:href="@{/budgets/{id}/edit(id=${budget.id})}" class="btn btn-outline-secondary" th:text="#{common.edit}">Edit</a>
+        </div>
+        <span th:if="${currentSide == null}" class="badge bg-secondary align-self-center"
+              th:text="#{budget.view.readOnly}">Read only</span>
+    </div>
+
+    <!-- The bottom line -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0" th:text="#{budget.view.transfer}">Transfer</h5>
+        </div>
+        <div class="card-body text-center">
+            <div th:if="${summary.settled}" class="py-3">
+                <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-2"></i>
+                <p class="mb-0 text-muted" th:text="#{budget.view.settled}">Nothing to transfer - the two sides balance out.</p>
+            </div>
+            <div th:unless="${summary.settled}" class="py-3">
+                <p class="mb-1">
+                    <strong th:text="${summary.payingUserName}">A</strong>
+                    <span th:text="#{budget.view.transfersTo}">transfers to</span>
+                    <strong th:text="${summary.receivingUserName}">B</strong>
+                </p>
+                <p class="display-5 fw-bold text-success mb-1">
+                    $<span th:text="${#numbers.formatDecimal(summary.netAmount, 1, 2)}">0.00</span>
+                </p>
+                <p class="text-muted mb-0">
+                    <span th:text="#{'budget.frequency.' + ${summary.period}}">Bi-weekly</span>
+                    <span class="mx-2">&middot;</span>
+                    <span th:text="#{budget.view.monthlyEquivalent}">about</span>
+                    $<span th:text="${#numbers.formatDecimal(summary.monthlyEquivalent, 1, 2)}">0.00</span>
+                    <span th:text="#{budget.view.perMonth}">per month</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Lines -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0" th:text="#{budget.view.lines}">Recurring Lines</h5>
+                    <small class="text-muted">
+                        <span th:text="#{budget.view.normalizedTo}">shown per</span>
+                        <span th:text="#{'budget.frequency.' + ${summary.period}}">Bi-weekly</span>
+                    </small>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(summary.items)}" class="text-center text-muted py-4">
+                        <span th:text="#{budget.view.noLines}">No recurring lines yet.</span>
+                    </div>
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(summary.items)}">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th th:text="#{budget.table.label}">Label</th>
+                                    <th th:text="#{budget.table.paidBy}">Paid by</th>
+                                    <th class="text-end" th:text="#{budget.table.amount}">Amount</th>
+                                    <th class="text-end" th:text="#{budget.table.normalized}">Per period</th>
+                                    <th th:if="${currentSide != null}"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="line : ${summary.items}" th:classappend="${line.active} ? '' : 'opacity-50'">
+                                    <td>
+                                        <span th:text="${line.label}">Internet</span>
+                                        <span th:if="${line.absorbed}" class="badge bg-warning text-dark ms-1"
+                                              th:text="#{budget.itemType.ABSORBED}">Absorbed</span>
+                                        <span th:unless="${line.active}" class="badge bg-secondary ms-1"
+                                              th:text="#{budget.view.inactive}">Inactive</span>
+                                        <br th:if="${line.notes}"><small class="text-muted" th:if="${line.notes}" th:text="${line.notes}">notes</small>
+                                    </td>
+                                    <td th:text="${line.paidByName}">Name</td>
+                                    <td class="text-end">
+                                        $<span th:text="${#numbers.formatDecimal(line.amount, 1, 2)}">0.00</span>
+                                        <br><small class="text-muted" th:text="#{'budget.frequency.' + ${line.frequency}}">Monthly</small>
+                                    </td>
+                                    <td class="text-end">
+                                        $<span th:text="${#numbers.formatDecimal(line.normalizedAmount, 1, 2)}">0.00</span>
+                                    </td>
+                                    <td class="text-end text-nowrap" th:if="${currentSide != null}">
+                                        <form th:action="@{/budgets/{id}/items/{itemId}/toggle(id=${budget.id}, itemId=${line.id})}"
+                                              method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                                    th:title="#{budget.view.toggle}">
+                                                <i class="bi" th:classappend="${line.active} ? 'bi-pause' : 'bi-play'"></i>
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/budgets/{id}/items/{itemId}/delete(id=${budget.id}, itemId=${line.id})}"
+                                              method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    th:attr="onclick=|return confirm('#{budget.view.deleteLineConfirm}')|">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Per-person breakdown -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0" th:text="#{budget.view.breakdown}">Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        <span th:text="#{budget.view.pooledTotal}">Pooled total</span>:
+                        $<span th:text="${#numbers.formatDecimal(summary.pooledTotal, 1, 2)}">0.00</span>
+                    </p>
+
+                    <div th:each="side : ${summary.sides()}" class="mb-3 pb-3 border-bottom">
+                        <h6 class="mb-2">
+                            <span th:text="${side.name}">Name</span>
+                            <span class="badge bg-secondary ms-1"
+                                  th:text="${#numbers.formatDecimal(side.sharePercent, 1, 0)} + '%'">50%</span>
+                            <span th:if="${currentSide != null and side.side == currentSide}"
+                                  class="badge bg-primary ms-1" th:text="#{budget.view.you}">you</span>
+                        </h6>
+                        <div class="d-flex justify-content-between small">
+                            <span th:text="#{budget.view.paidShared}">Pays into the pool</span>
+                            <span>$<span th:text="${#numbers.formatDecimal(side.paidShared, 1, 2)}">0.00</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between small" th:if="${side.absorbed.signum() != 0}">
+                            <span th:text="#{budget.view.absorbed}">Absorbed alone</span>
+                            <span>$<span th:text="${#numbers.formatDecimal(side.absorbed, 1, 2)}">0.00</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between small fw-semibold">
+                            <span th:text="#{budget.view.totalOutlay}">Total out of pocket</span>
+                            <span>$<span th:text="${#numbers.formatDecimal(side.totalOutlay, 1, 2)}">0.00</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-success">
+                            <span th:text="#{budget.view.owedByOther}">Owed by the other</span>
+                            <span>$<span th:text="${#numbers.formatDecimal(side.owedByOther, 1, 2)}">0.00</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-danger">
+                            <span th:text="#{budget.view.owesOther}">Owes the other</span>
+                            <span>$<span th:text="${#numbers.formatDecimal(side.owesOther, 1, 2)}">0.00</span></span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted small mb-0" th:text="#{budget.view.absorbedHelp}">
+                        Absorbed lines are paid entirely by one person and never move the transfer.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="card border-danger mb-4" th:if="${currentSide != null}">
+        <div class="card-body">
+            <h5 class="card-title text-danger" th:text="#{budget.view.dangerZone}">Danger Zone</h5>
+            <p th:text="#{budget.view.deleteDesc}">Deleting a budget removes all of its recurring lines. This cannot be undone.</p>
+            <form th:action="@{/budgets/{id}/delete(id=${budget.id})}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-danger"
+                        th:attr="onclick=|return confirm('#{budget.view.deleteConfirm}')|" th:text="#{budget.view.delete}">
+                    Delete Budget
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Line Modal -->
+<div class="modal fade" id="addItemModal" tabindex="-1" th:if="${currentSide != null}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/budgets/{id}/items(id=${budget.id})}" th:object="${item}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="#{budget.view.addItem}">Add Line</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="label" class="form-label"><span th:text="#{budget.table.label}">Label</span> *</label>
+                        <input type="text" class="form-control" id="label" th:field="*{label}"
+                               th:placeholder="#{budget.form.labelPlaceholder}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label for="amount" class="form-label"><span th:text="#{common.amount}">Amount</span> *</label>
+                            <input type="number" step="0.01" min="0.01" class="form-control" id="amount" th:field="*{amount}" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label for="frequency" class="form-label" th:text="#{budget.form.frequency}">Frequency</label>
+                            <select class="form-select" id="frequency" th:field="*{frequency}">
+                                <option th:each="f : ${frequencies}" th:value="${f}" th:text="#{'budget.frequency.' + ${f}}">Monthly</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paidBySide" class="form-label" th:text="#{budget.table.paidBy}">Paid by</label>
+                        <select class="form-select" id="paidBySide" th:field="*{paidBySide}">
+                            <option value="A" th:text="${budget.userA.name}">A</option>
+                            <option value="B" th:text="${budget.userB.name}">B</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="itemType" class="form-label" th:text="#{budget.form.itemType}">Type</label>
+                        <select class="form-select" id="itemType" th:field="*{itemType}">
+                            <option th:each="t : ${itemTypes}" th:value="${t}" th:text="#{'budget.itemType.' + ${t}}">Shared</option>
+                        </select>
+                        <small class="text-muted" th:text="#{budget.form.itemTypeHelp}">Absorbed lines are paid by one person and stay out of the split.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label" th:text="#{budget.form.notes}">Notes</label>
+                        <input type="text" class="form-control" id="notes" th:field="*{notes}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{common.cancel}">Cancel</button>
+                    <button type="submit" class="btn btn-primary" th:text="#{common.add}">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+</body>
+</html>

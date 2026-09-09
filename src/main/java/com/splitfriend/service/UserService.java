@@ -146,4 +146,30 @@ public class UserService {
         user.setTotpSecret(null);
         userRepository.save(user);
     }
+
+    /** Grants or revokes the Budget feature for a user. Admin action. */
+    public void setBudgetEnabled(Long userId, boolean enabled) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setBudgetEnabled(enabled);
+            userRepository.save(user);
+        });
+    }
+
+    /**
+     * Whether the user may use the Budget feature, read fresh rather than from
+     * the cached principal so a revocation takes effect on the next request.
+     */
+    @Transactional(readOnly = true)
+    public boolean isBudgetEnabled(Long userId) {
+        if (userId == null) {
+            return false;
+        }
+        return userRepository.findBudgetEnabledById(userId).map(Boolean.TRUE::equals).orElse(false);
+    }
+
+    /** Users an admin has granted Budget access, as candidate participants. */
+    @Transactional(readOnly = true)
+    public List<User> findBudgetEnabledUsers() {
+        return userRepository.findByBudgetEnabledTrueOrderByNameAsc();
+    }
 }
