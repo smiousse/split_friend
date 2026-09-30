@@ -98,10 +98,37 @@ public class LoyaltyCard {
     /** Up to two letters for the logo-less tile. */
     @Transient
     public String getInitials() {
-        if (merchantName == null || merchantName.isBlank()) {
+        return initialsOf(merchantName);
+    }
+
+    /** Dark initials on light tiles, white on dark ones. */
+    @Transient
+    public String getInitialsColor() {
+        return initialsColorFor(color);
+    }
+
+    /** Relative luminance (sRGB, approximated) above which white text stops reading. */
+    public static String initialsColorFor(String hex) {
+        if (hex == null || !hex.matches("^#[0-9a-fA-F]{6}$")) {
+            return "#ffffff";
+        }
+        int r = Integer.parseInt(hex.substring(1, 3), 16);
+        int g = Integer.parseInt(hex.substring(3, 5), 16);
+        int b = Integer.parseInt(hex.substring(5, 7), 16);
+        double luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+        return luminance > 0.6 ? "#1f2937" : "#ffffff";
+    }
+
+    public static String initialsOf(String name) {
+        if (name == null || name.isBlank()) {
             return "?";
         }
-        String[] words = merchantName.strip().split("\\s+");
+        String[] words = java.util.Arrays.stream(name.strip().split("[\\s-]+"))
+                .filter(w -> !w.isEmpty())
+                .toArray(String[]::new);
+        if (words.length == 0) {
+            return "?";
+        }
         String first = words[0].substring(0, 1);
         String second = words.length > 1 ? words[1].substring(0, 1) : "";
         return (first + second).toUpperCase();

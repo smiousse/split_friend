@@ -8,6 +8,7 @@ import com.splitfriend.model.enums.BarcodeFormat;
 import com.splitfriend.security.CustomUserDetailsService.CustomUserDetails;
 import com.splitfriend.service.LogoImageProcessor;
 import com.splitfriend.service.LoyaltyCardService;
+import com.splitfriend.service.LoyaltyPresetCatalog;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.CacheControl;
@@ -39,9 +40,11 @@ public class LoyaltyCardController {
     private static final String FORM_VIEW = "cards/form";
 
     private final LoyaltyCardService cardService;
+    private final LoyaltyPresetCatalog presetCatalog;
 
-    public LoyaltyCardController(LoyaltyCardService cardService) {
+    public LoyaltyCardController(LoyaltyCardService cardService, LoyaltyPresetCatalog presetCatalog) {
         this.cardService = cardService;
+        this.presetCatalog = presetCatalog;
     }
 
     @GetMapping
@@ -233,6 +236,7 @@ public class LoyaltyCardController {
 
     private void addFormOptions(Model model, LoyaltyCard existing, Long userId) {
         model.addAttribute("formats", BarcodeFormat.values());
+        model.addAttribute("presets", presetCatalog.all());
         model.addAttribute("existing", existing);
         if (existing != null) {
             model.addAttribute("holders", cardService.findHolders(existing.getId(), userId));

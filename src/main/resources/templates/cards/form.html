@@ -18,6 +18,29 @@
 
                     <form th:action="${existing == null} ? @{/cards} : @{/cards/{id}/edit(id=${existing.id})}"
                           th:object="${card}" method="post" enctype="multipart/form-data" id="card-form">
+                        <!-- Known stores: fills name, colour and logo. Open by default for a new card. -->
+                        <input type="hidden" th:field="*{presetId}" id="presetId">
+                        <details class="mb-4 preset-picker" th:open="${existing == null}">
+                            <summary class="form-label fw-semibold"
+                                     th:text="${existing == null} ? #{cards.preset.title} : #{cards.preset.change}">Pick your store</summary>
+                            <input type="search" class="form-control form-control-sm my-2" id="preset-search"
+                                   th:placeholder="#{cards.preset.search}" autocomplete="off">
+                            <div class="preset-grid" id="preset-grid">
+                                <button type="button" class="preset-tile" th:each="p : ${presets}"
+                                        th:classappend="${p.id() == card.presetId} ? 'selected'"
+                                        th:attr="data-preset-id=${p.id()}, data-name=${p.name()}, data-color=${p.color()},
+                                                 data-search=${#strings.toLowerCase(p.name())}"
+                                        th:title="${p.name()}">
+                                    <span class="loyalty-tile-face" th:style="'background-color:' + ${p.color()}">
+                                        <span class="loyalty-tile-initials" th:style="'color:' + ${p.initialsColor()}" th:text="${p.initials()}">IF</span>
+                                        <img th:src="@{/cards/presets/{id}/logo(id=${p.id()})}" alt="" loading="lazy">
+                                    </span>
+                                    <span class="preset-name text-truncate" th:text="${p.name()}">IKEA Family</span>
+                                </button>
+                            </div>
+                            <small class="text-muted d-block mt-2" th:text="#{cards.preset.help}">Picking a store fills in its name, colour and logo.</small>
+                        </details>
+
                         <div class="mb-3">
                             <label for="merchantName" class="form-label"><span th:text="#{cards.form.merchant}">Store</span> *</label>
                             <input type="text" class="form-control" id="merchantName" th:field="*{merchantName}"
@@ -65,6 +88,7 @@
                                 <label for="logo" class="form-label" th:text="#{cards.form.logo}">Logo</label>
                                 <input type="file" class="form-control" id="logo" name="logo" accept="image/png,image/jpeg,image/gif">
                                 <small class="text-muted" th:text="#{cards.form.logoHelp}">PNG, JPEG or GIF.</small>
+                                <small class="text-muted d-block d-none" id="preset-logo-note" th:text="#{cards.preset.logoNote}">The store's logo is used unless you upload one.</small>
                             </div>
                         </div>
 

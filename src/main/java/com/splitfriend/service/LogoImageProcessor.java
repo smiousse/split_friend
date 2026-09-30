@@ -45,6 +45,14 @@ public class LogoImageProcessor {
     private static final Set<String> ALLOWED_FORMATS = Set.of("png", "jpeg", "gif");
 
     public byte[] process(byte[] upload) {
+        return process(upload, 1);
+    }
+
+    /**
+     * @param minSourceDimension refuse images whose longer side is smaller
+     *                           than this - they would look blurry scaled up
+     */
+    public byte[] process(byte[] upload, int minSourceDimension) {
         if (upload == null || upload.length == 0) {
             throw new IllegalArgumentException("The logo file is empty");
         }
@@ -53,6 +61,9 @@ public class LogoImageProcessor {
         }
 
         BufferedImage source = decode(upload);
+        if (Math.max(source.getWidth(), source.getHeight()) < minSourceDimension) {
+            throw new IllegalArgumentException("The logo image is too small");
+        }
         return encodePng(scaleToFit(source));
     }
 

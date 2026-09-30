@@ -18,7 +18,7 @@
             <span class="loyalty-tile-face" th:style="'background-color:' + ${c.color}">
                 <img th:if="${c.hasLogo()}" th:src="@{/cards/{id}/logo(id=${c.id},v=${c.logoEtag})}"
                      th:alt="${c.merchantName}" loading="lazy">
-                <span th:unless="${c.hasLogo()}" class="loyalty-tile-initials" th:text="${c.initials}">MT</span>
+                <span th:unless="${c.hasLogo()}" class="loyalty-tile-initials" th:style="'color:' + ${c.initialsColor}" th:text="${c.initials}">MT</span>
             </span>
             <span class="dashboard-pinned-name text-truncate" th:text="${c.merchantName}">Metro</span>
         </a>

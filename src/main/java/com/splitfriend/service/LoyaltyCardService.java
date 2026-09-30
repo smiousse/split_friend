@@ -4,6 +4,7 @@ import com.splitfriend.dto.LoyaltyCardForm;
 import com.splitfriend.model.LoyaltyCard;
 import com.splitfriend.model.LoyaltyCardHolder;
 import com.splitfriend.model.LoyaltyCardLogo;
+import com.splitfriend.model.LoyaltyPresetLogo;
 import com.splitfriend.model.User;
 import com.splitfriend.repository.LoyaltyCardHolderRepository;
 import com.splitfriend.repository.LoyaltyCardLogoRepository;
@@ -41,17 +42,20 @@ public class LoyaltyCardService {
     private final LoyaltyCardLogoRepository logoRepository;
     private final UserRepository userRepository;
     private final LogoImageProcessor logoProcessor;
+    private final PresetLogoService presetLogoService;
 
     public LoyaltyCardService(LoyaltyCardRepository cardRepository,
                               LoyaltyCardHolderRepository holderRepository,
                               LoyaltyCardLogoRepository logoRepository,
                               UserRepository userRepository,
-                              LogoImageProcessor logoProcessor) {
+                              LogoImageProcessor logoProcessor,
+                              PresetLogoService presetLogoService) {
         this.cardRepository = cardRepository;
         this.holderRepository = holderRepository;
         this.logoRepository = logoRepository;
         this.userRepository = userRepository;
         this.logoProcessor = logoProcessor;
+        this.presetLogoService = presetLogoService;
     }
 
     // ---------- reads ----------
@@ -101,11 +105,12 @@ public class LoyaltyCardService {
     // ---------- writes (owner) ----------
 
     /**
-     * @param logoUpload raw upload bytes, or {@code null} for no logo
+     * @param logoUpload raw upload bytes, or {@code null} for no logo (or the
+     *                   chosen preset's logo, if the form names one)
      */
     public LoyaltyCard create(LoyaltyCardForm form, byte[] logoUpload, User owner) {
         String number = BarcodeValidator.normalize(form.getBarcodeFormat(), form.getCardNumber());
-        byte[] logo = logoUpload != null ? logoProcessor.process(logoUpload) : null;
+        byte[] logo = resolveLogo(form, logoUpload);
 
         LoyaltyCard card = LoyaltyCard.builder()
                 .owner(owner)
@@ -126,13 +131,14 @@ public class LoyaltyCardService {
     }
 
     /**
-     * @param logoUpload new logo bytes, or {@code null} to keep (or, with
+     * @param logoUpload new logo bytes; or {@code null} to use the chosen
+     *                   preset's logo, else keep (or, with
      *                   {@code form.removeLogo}, drop) the current one
      */
     public LoyaltyCard update(Long cardId, LoyaltyCardForm form, byte[] logoUpload, Long userId) {
         LoyaltyCard card = requireOwner(cardId, userId);
         String number = BarcodeValidator.normalize(form.getBarcodeFormat(), form.getCardNumber());
-        byte[] logo = logoUpload != null ? logoProcessor.process(logoUpload) : null;
+        byte[] logo = resolveLogo(form, logoUpload);
 
         card.setMerchantName(form.getMerchantName().strip());
         card.setCardNumber(number);
@@ -219,6 +225,19 @@ public class LoyaltyCardService {
     }
 
     // ---------- helpers ----------
+
+    /**
+     * An uploaded file wins; otherwise the preset's logo, which is copied so
+     * the card keeps it even if the preset's logo later changes.
+     */
+    private byte[] resolveLogo(LoyaltyCardForm form, byte[] logoUpload) {
+        if (logoUpload != null) {
+            return logoProcessor.process(logoUpload);
+        }
+        return presetLogoService.logoFor(form.getPresetId())
+                .map(LoyaltyPresetLogo::getData)
+                .orElse(null);
+    }
 
     private void storeLogo(Long cardId, byte[] logo) {
         logoRepository.save(LoyaltyCardLogo.builder()

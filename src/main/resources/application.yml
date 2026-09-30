@@ -66,6 +66,13 @@ app:
     default: CAD
   upload:
     path: ./uploads
+  loyalty:
+    # Brand logos for the loyalty card presets are fetched once per brand from
+    # this favicon service and stored in the database. Only the brand's domain
+    # is sent. Set PRESET_LOGOS_ENABLED=false to never contact it; presets then
+    # show initials on the brand colour.
+    preset-logos-enabled: ${PRESET_LOGOS_ENABLED:true}
+    preset-logo-url: "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&size=256&url=https://www.{domain}"
   admin:
     default-email: admin@splitfriend.local
     default-password: ${ADMIN_PASSWORD:admin123}

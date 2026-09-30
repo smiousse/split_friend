@@ -7,6 +7,7 @@ import com.splitfriend.model.User;
 import com.splitfriend.model.enums.BarcodeFormat;
 import com.splitfriend.security.CustomUserDetailsService.CustomUserDetails;
 import com.splitfriend.service.LoyaltyCardService;
+import com.splitfriend.service.LoyaltyPresetCatalog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ class LoyaltyCardControllerTest {
     @BeforeEach
     void setUp() {
         service = mock(LoyaltyCardService.class);
-        controller = new LoyaltyCardController(service);
+        controller = new LoyaltyCardController(service, new LoyaltyPresetCatalog());
         principal = new CustomUserDetails(User.builder().id(USER_ID).name("Me").email("me@example.com")
                 .passwordHash("x").build());
     }
@@ -78,6 +79,7 @@ class LoyaltyCardControllerTest {
         assertThat(view).isEqualTo("cards/form");
         assertThat(model.get("error")).isEqualTo("EAN-13 check digit does not match");
         assertThat(model.get("formats")).isNotNull();
+        assertThat(model.get("presets")).asList().isNotEmpty();
     }
 
     @Test

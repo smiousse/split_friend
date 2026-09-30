@@ -36,6 +36,13 @@ public class LoyaltyCardForm {
     /** Edit only: drop the current logo. Ignored when a new one is uploaded. */
     private boolean removeLogo;
 
+    /**
+     * The preset picked in the form, if any. Its brand logo is copied onto the
+     * card unless a logo file is uploaded as well. Unknown ids are ignored.
+     */
+    @Size(max = 50)
+    private String presetId;
+
     public static LoyaltyCardForm from(LoyaltyCard card) {
         LoyaltyCardForm form = new LoyaltyCardForm();
         form.setMerchantName(card.getMerchantName());

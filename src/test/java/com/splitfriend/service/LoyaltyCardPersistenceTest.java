@@ -29,7 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * the holder unique key, and delete ordering.
  */
 @DataJpaTest
-@Import({LoyaltyCardService.class, LogoImageProcessor.class})
+@Import({LoyaltyCardService.class, LogoImageProcessor.class, PresetLogoService.class, LoyaltyPresetCatalog.class,
+        LoyaltyCardPersistenceTest.NoFetch.class})
 class LoyaltyCardPersistenceTest {
 
     @Autowired private LoyaltyCardService service;
@@ -41,6 +42,14 @@ class LoyaltyCardPersistenceTest {
 
     private User owner;
     private User partner;
+
+    /** Never contacts the network from a test. */
+    static class NoFetch implements PresetLogoFetcher {
+        @Override
+        public java.util.Optional<byte[]> fetch(String domain) {
+            return java.util.Optional.empty();
+        }
+    }
 
     @BeforeEach
     void setUp() {

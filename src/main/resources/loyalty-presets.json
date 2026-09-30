@@ -1,0 +1,224 @@
+[
+  {
+    "id": "aeroplan",
+    "name": "Aeroplan",
+    "domain": "aeroplan.com",
+    "color": "#111111"
+  },
+  {
+    "id": "air-miles",
+    "name": "AIR MILES",
+    "domain": "airmiles.ca",
+    "color": "#ffffff"
+  },
+  {
+    "id": "archambault",
+    "name": "Archambault",
+    "domain": "archambault.ca",
+    "color": "#000000"
+  },
+  {
+    "id": "best-buy",
+    "name": "Best Buy",
+    "domain": "bestbuy.ca",
+    "color": "#0046be"
+  },
+  {
+    "id": "brunet",
+    "name": "Brunet",
+    "domain": "brunet.ca",
+    "color": "#0083ca"
+  },
+  {
+    "id": "bureau-en-gros",
+    "name": "Bureau en Gros",
+    "domain": "bureauengros.com",
+    "color": "#cc0000"
+  },
+  {
+    "id": "caa-quebec",
+    "name": "CAA-Québec",
+    "domain": "caaquebec.com",
+    "color": "#00539b"
+  },
+  {
+    "id": "costco",
+    "name": "Costco",
+    "domain": "costco.ca",
+    "color": "#e31837"
+  },
+  {
+    "id": "couche-tard",
+    "name": "Couche-Tard",
+    "domain": "couche-tard.com",
+    "color": "#ffffff"
+  },
+  {
+    "id": "dyno",
+    "name": "Dyno",
+    "domain": "dyno.ca",
+    "color": "#00a0df"
+  },
+  {
+    "id": "familiprix",
+    "name": "Familiprix",
+    "domain": "familiprix.com",
+    "color": "#6cb33f"
+  },
+  {
+    "id": "home-depot",
+    "name": "Home Depot",
+    "domain": "homedepot.ca",
+    "color": "#f96302"
+  },
+  {
+    "id": "iga",
+    "name": "IGA",
+    "domain": "iga.net",
+    "color": "#d71920"
+  },
+  {
+    "id": "ikea-family",
+    "name": "IKEA Family",
+    "domain": "ikea.com",
+    "color": "#0058a3"
+  },
+  {
+    "id": "indigo-plum",
+    "name": "Indigo Plum",
+    "domain": "indigo.ca",
+    "color": "#5b2c83"
+  },
+  {
+    "id": "jean-coutu",
+    "name": "Jean Coutu",
+    "domain": "jeancoutu.com",
+    "color": "#ffffff"
+  },
+  {
+    "id": "journie",
+    "name": "Journie (Ultramar)",
+    "domain": "journie.com",
+    "color": "#1a1446"
+  },
+  {
+    "id": "la-senza",
+    "name": "La Senza",
+    "domain": "lasenza.com",
+    "color": "#e6007e"
+  },
+  {
+    "id": "mec",
+    "name": "MEC",
+    "domain": "mec.ca",
+    "color": "#ffffff"
+  },
+  {
+    "id": "moi",
+    "name": "moi (Metro)",
+    "domain": "metro.ca",
+    "color": "#e2001a"
+  },
+  {
+    "id": "mondou",
+    "name": "Mondou",
+    "domain": "mondou.com",
+    "color": "#003a70"
+  },
+  {
+    "id": "pc-optimum",
+    "name": "PC Optimum",
+    "domain": "pcoptimum.ca",
+    "color": "#d7282f"
+  },
+  {
+    "id": "petro-points",
+    "name": "Petro-Points",
+    "domain": "petro-canada.ca",
+    "color": "#da291c"
+  },
+  {
+    "id": "renaud-bray",
+    "name": "Renaud-Bray",
+    "domain": "renaud-bray.com",
+    "color": "#111111"
+  },
+  {
+    "id": "rona",
+    "name": "RONA",
+    "domain": "rona.ca",
+    "color": "#002d5b"
+  },
+  {
+    "id": "saq-inspire",
+    "name": "SAQ Inspire",
+    "domain": "saq.com",
+    "color": "#7a1a3a"
+  },
+  {
+    "id": "scene-plus",
+    "name": "Scene+",
+    "domain": "sceneplus.ca",
+    "color": "#111111"
+  },
+  {
+    "id": "sephora",
+    "name": "Sephora Beauty Insider",
+    "domain": "sephora.com",
+    "color": "#000000"
+  },
+  {
+    "id": "simons",
+    "name": "Simons",
+    "domain": "simons.ca",
+    "color": "#111111"
+  },
+  {
+    "id": "sports-experts",
+    "name": "Sports Experts",
+    "domain": "sportsexperts.ca",
+    "color": "#0055b8"
+  },
+  {
+    "id": "starbucks",
+    "name": "Starbucks Rewards",
+    "domain": "starbucks.ca",
+    "color": "#00704a"
+  },
+  {
+    "id": "super-c",
+    "name": "Super C",
+    "domain": "superc.ca",
+    "color": "#e30613"
+  },
+  {
+    "id": "tim-hortons",
+    "name": "Tim Hortons",
+    "domain": "timhortons.ca",
+    "color": "#c8102e"
+  },
+  {
+    "id": "triangle",
+    "name": "Triangle Rewards",
+    "domain": "canadiantire.ca",
+    "color": "#d52b1e"
+  },
+  {
+    "id": "uniprix",
+    "name": "Uniprix",
+    "domain": "uniprix.com",
+    "color": "#0055a5"
+  },
+  {
+    "id": "via-preference",
+    "name": "VIA Préférence",
+    "domain": "viarail.ca",
+    "color": "#1c2c5b"
+  },
+  {
+    "id": "yuzu",
+    "name": "Yuzu Sushi",
+    "domain": "yuzusushi.ca",
+    "color": "#f47b20"
+  }
+]

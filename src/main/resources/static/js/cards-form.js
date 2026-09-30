@@ -46,6 +46,65 @@
     formatSelect.addEventListener('change', renderPreview);
     renderPreview();
 
+    // ---------- store presets ----------
+
+    var presetInput = document.getElementById('presetId');
+    var presetGrid = document.getElementById('preset-grid');
+    var presetSearch = document.getElementById('preset-search');
+    var presetLogoNote = document.getElementById('preset-logo-note');
+    var merchantInput = document.getElementById('merchantName');
+    var colorInput = document.getElementById('color');
+
+    function showPresetLogoNote() {
+        presetLogoNote.classList.toggle('d-none', !presetInput.value);
+    }
+
+    if (presetGrid) {
+        // A preset with no usable logo answers 404: drop the image so its
+        // initials show. Some fail before this script runs, so check those too.
+        presetGrid.addEventListener('error', function (event) {
+            if (event.target.tagName === 'IMG') {
+                event.target.remove();
+            }
+        }, true);
+        presetGrid.querySelectorAll('img').forEach(function (img) {
+            if (img.complete && img.naturalWidth === 0) {
+                img.remove();
+            }
+        });
+
+        presetGrid.addEventListener('click', function (event) {
+            var tile = event.target.closest('.preset-tile');
+            if (!tile) {
+                return;
+            }
+            var wasSelected = tile.classList.contains('selected');
+            presetGrid.querySelectorAll('.preset-tile.selected').forEach(function (t) {
+                t.classList.remove('selected');
+            });
+            if (wasSelected) {
+                presetInput.value = ''; // tapping again means "not this store"
+            } else {
+                tile.classList.add('selected');
+                presetInput.value = tile.getAttribute('data-preset-id');
+                merchantInput.value = tile.getAttribute('data-name');
+                colorInput.value = tile.getAttribute('data-color');
+                // Next step is the number; scroll to it without popping the keyboard.
+                numberInput.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }
+            showPresetLogoNote();
+        });
+
+        presetSearch.addEventListener('input', function () {
+            var q = presetSearch.value.trim().toLowerCase();
+            presetGrid.querySelectorAll('.preset-tile').forEach(function (t) {
+                t.classList.toggle('d-none', q !== '' && t.getAttribute('data-search').indexOf(q) === -1);
+            });
+        });
+
+        showPresetLogoNote();
+    }
+
     // ---------- scanning ----------
 
     function formatKey(name) {

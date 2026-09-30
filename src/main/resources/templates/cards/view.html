@@ -14,7 +14,7 @@
         <a th:href="@{/cards}" class="btn btn-link px-0 me-2" th:title="#{common.back}"><i class="bi bi-arrow-left fs-4"></i></a>
         <div class="loyalty-view-logo me-2" th:style="'background-color:' + ${card.color}">
             <img th:if="${card.hasLogo()}" th:src="@{/cards/{id}/logo(id=${card.id},v=${card.logoEtag})}" th:alt="${card.merchantName}">
-            <span th:unless="${card.hasLogo()}" th:text="${card.initials}">MT</span>
+            <span th:unless="${card.hasLogo()}" th:style="'color:' + ${card.initialsColor}" th:text="${card.initials}">MT</span>
         </div>
         <h3 class="mb-0 flex-grow-1 text-truncate" th:text="${card.merchantName}">Metro</h3>
         <a th:if="${isOwner}" th:href="@{/cards/{id}/edit(id=${card.id})}" class="btn btn-outline-secondary btn-sm">

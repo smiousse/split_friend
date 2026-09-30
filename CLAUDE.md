@@ -39,7 +39,7 @@ com.splitfriend/
 ├── controller/      # Web controllers (REST-style endpoints returning HTML views)
 │   └── admin/       # Admin-only controllers (AdminController, UserManagementController, BackupController)
 ├── model/           # JPA entities: User, Group, GroupMember, Expense, ExpenseSplit, Settlement, Budget, BudgetItem,
-│                    # LoyaltyCard, LoyaltyCardHolder, LoyaltyCardLogo
+│                    # LoyaltyCard, LoyaltyCardHolder, LoyaltyCardLogo, LoyaltyPresetLogo
 │   └── enums/       # Role (ADMIN, USER), SplitType (EQUAL, PERCENTAGE, EXACT, SHARES),
 │                    # BudgetFrequency, BudgetSide (A, B), BudgetItemType (SHARED, ABSORBED)
 ├── repository/      # Spring Data JPA repositories
@@ -128,6 +128,14 @@ Personal store cards shown at the till (`/cards`), available to every user
   loaded on demand). Camera access needs HTTPS. zxing-js cannot read Codabar
   or ITF shorter than 6 digits; typing the number still works.
 - `UserService.deleteUser` removes the user's cards and holder rows first.
+- Presets: `loyalty-presets.json` (id, name, domain, colour) feeds the store
+  picker on the card form. Brand logos are **not** in the repo (it is public):
+  `PresetLogoService` fetches each on first use through the favicon service in
+  `app.loyalty.preset-logo-url` (only the domain is sent), re-encodes it, and
+  keeps it in `loyalty_preset_logos`; misses are retried after 7 days, icons
+  under 48px are treated as missing (initials on the brand colour instead).
+  `PRESET_LOGOS_ENABLED=false` stops all outbound fetches. A card made from a
+  preset gets its own copy of the logo; an uploaded file always wins.
 
 ### Security Model
 

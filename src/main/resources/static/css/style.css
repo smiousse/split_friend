@@ -998,3 +998,64 @@ body {
     box-shadow: none;
     border: 1px dashed var(--bs-border-color);
 }
+
+/* Loyalty card preset picker */
+.preset-picker summary {
+    cursor: pointer;
+}
+
+.preset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+    gap: 0.6rem;
+    max-height: 22rem;
+    overflow-y: auto;
+    padding: 0.25rem;
+}
+
+.preset-tile {
+    background: none;
+    border: 0;
+    padding: 0;
+    min-width: 0;
+    color: inherit;
+    text-align: center;
+}
+
+.preset-tile .loyalty-tile-face {
+    position: relative;
+    border-radius: 0.5rem;
+    outline: 3px solid transparent;
+    outline-offset: 2px;
+}
+
+.preset-tile .loyalty-tile-face img {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+}
+
+.preset-tile .loyalty-tile-initials {
+    font-size: 1rem;
+}
+
+.preset-tile.selected .loyalty-tile-face {
+    outline-color: var(--bs-primary);
+}
+
+.preset-name {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* A loaded logo covers the initials; they show only if the image failed and was removed. */
+.preset-tile .loyalty-tile-face:has(img) .loyalty-tile-initials {
+    visibility: hidden;
+}
+
+/* Light brand colours (white tiles) need an edge to read as a tile. */
+.loyalty-tile-face {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}

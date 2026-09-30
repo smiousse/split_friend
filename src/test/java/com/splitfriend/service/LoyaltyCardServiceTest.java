@@ -4,6 +4,7 @@ import com.splitfriend.dto.LoyaltyCardForm;
 import com.splitfriend.model.LoyaltyCard;
 import com.splitfriend.model.LoyaltyCardHolder;
 import com.splitfriend.model.LoyaltyCardLogo;
+import com.splitfriend.model.LoyaltyPresetLogo;
 import com.splitfriend.model.User;
 import com.splitfriend.model.enums.BarcodeFormat;
 import com.splitfriend.repository.LoyaltyCardHolderRepository;
@@ -42,6 +43,7 @@ class LoyaltyCardServiceTest {
     private LoyaltyCardLogoRepository logoRepository;
     private UserRepository userRepository;
     private LogoImageProcessor logoProcessor;
+    private PresetLogoService presetLogoService;
     private LoyaltyCardService service;
 
     @BeforeEach
@@ -51,7 +53,10 @@ class LoyaltyCardServiceTest {
         logoRepository = mock(LoyaltyCardLogoRepository.class);
         userRepository = mock(UserRepository.class);
         logoProcessor = mock(LogoImageProcessor.class);
-        service = new LoyaltyCardService(cardRepository, holderRepository, logoRepository, userRepository, logoProcessor);
+        presetLogoService = mock(PresetLogoService.class);
+        when(presetLogoService.logoFor(any())).thenReturn(Optional.empty());
+        service = new LoyaltyCardService(cardRepository, holderRepository, logoRepository, userRepository,
+                logoProcessor, presetLogoService);
         when(cardRepository.save(any(LoyaltyCard.class))).thenAnswer(inv -> {
             LoyaltyCard c = inv.getArgument(0);
             if (c.getId() == null) {
@@ -95,6 +100,49 @@ class LoyaltyCardServiceTest {
         assertThat(saved.getValue().getCardId()).isEqualTo(CARD_ID);
         assertThat(saved.getValue().getData()).isEqualTo(processed);
         assertThat(card.getLogoEtag()).isEqualTo(LogoImageProcessor.etagOf(processed));
+    }
+
+    @Test
+    @DisplayName("a card created from a preset gets the preset's logo")
+    void createFromPresetCopiesLogo() {
+        byte[] brand = {4, 5, 6};
+        when(presetLogoService.logoFor("ikea-family")).thenReturn(Optional.of(
+                LoyaltyPresetLogo.builder().presetId("ikea-family").data(brand).etag("x").build()));
+        LoyaltyCardForm f = form("IKEA Family", "ABC", BarcodeFormat.CODE128);
+        f.setPresetId("ikea-family");
+
+        LoyaltyCard card = service.create(f, null, user(OWNER));
+
+        ArgumentCaptor<LoyaltyCardLogo> saved = ArgumentCaptor.forClass(LoyaltyCardLogo.class);
+        verify(logoRepository).save(saved.capture());
+        assertThat(saved.getValue().getData()).isEqualTo(brand);
+        assertThat(card.getLogoEtag()).isEqualTo(LogoImageProcessor.etagOf(brand));
+    }
+
+    @Test
+    @DisplayName("an uploaded logo wins over the preset's")
+    void uploadBeatsPreset() {
+        byte[] uploaded = {1, 1};
+        when(logoProcessor.process(any())).thenReturn(uploaded);
+        LoyaltyCardForm f = form("IKEA Family", "ABC", BarcodeFormat.CODE128);
+        f.setPresetId("ikea-family");
+
+        service.create(f, new byte[]{9}, user(OWNER));
+
+        verify(presetLogoService, never()).logoFor(any());
+        ArgumentCaptor<LoyaltyCardLogo> saved = ArgumentCaptor.forClass(LoyaltyCardLogo.class);
+        verify(logoRepository).save(saved.capture());
+        assertThat(saved.getValue().getData()).isEqualTo(uploaded);
+    }
+
+    @Test
+    @DisplayName("a preset with no usable logo leaves the card without one")
+    void presetWithoutLogo() {
+        LoyaltyCardForm f = form("Costco", "ABC", BarcodeFormat.CODE128);
+        f.setPresetId("costco");
+
+        assertThat(service.create(f, null, user(OWNER)).hasLogo()).isFalse();
+        verify(logoRepository, never()).save(any());
     }
 
     // ---------- read access ----------
