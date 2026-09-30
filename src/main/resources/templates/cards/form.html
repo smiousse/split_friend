@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Loyalty card - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-3 mb-5">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4"
+                        th:text="${existing == null} ? #{cards.form.newTitle} : #{cards.form.editTitle}">New loyalty card</h3>
+
+                    <form th:action="${existing == null} ? @{/cards} : @{/cards/{id}/edit(id=${existing.id})}"
+                          th:object="${card}" method="post" enctype="multipart/form-data" id="card-form">
+                        <div class="mb-3">
+                            <label for="merchantName" class="form-label"><span th:text="#{cards.form.merchant}">Store</span> *</label>
+                            <input type="text" class="form-control" id="merchantName" th:field="*{merchantName}"
+                                   th:placeholder="#{cards.form.merchantPlaceholder}" maxlength="100" required>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('merchantName')}" th:errors="*{merchantName}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="cardNumber" class="form-label"><span th:text="#{cards.form.number}">Card number</span> *</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control font-monospace" id="cardNumber" th:field="*{cardNumber}"
+                                       maxlength="500" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+                                <button type="button" class="btn btn-outline-primary" id="scan-btn">
+                                    <i class="bi bi-upc-scan"></i> <span th:text="#{cards.form.scan}">Scan</span>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('cardNumber')}" th:errors="*{cardNumber}"></div>
+                            <div class="form-text text-warning d-none" id="scan-message"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="barcodeFormat" class="form-label" th:text="#{cards.form.format}">Barcode type</label>
+                            <select class="form-select" id="barcodeFormat" th:field="*{barcodeFormat}">
+                                <option th:each="f : ${formats}" th:value="${f}"
+                                        th:attr="data-bcid=${f.bwipId}, data-scan=${f.scanName}, data-two-d=${f.twoDimensional}"
+                                        th:text="#{'cards.format.' + ${f}}">Code 128</option>
+                            </select>
+                            <small class="text-muted" th:text="#{cards.form.formatHelp}">Scanning fills this in.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" th:text="#{cards.form.preview}">Preview</label>
+                            <div class="loyalty-barcode-panel loyalty-barcode-preview">
+                                <canvas id="barcode-preview"></canvas>
+                                <div class="text-danger small d-none" id="preview-error" th:text="#{cards.form.previewError}">Cannot draw</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-4 mb-3">
+                                <label for="color" class="form-label" th:text="#{cards.form.color}">Tile color</label>
+                                <input type="color" class="form-control form-control-color w-100" id="color" th:field="*{color}">
+                            </div>
+                            <div class="col-8 mb-3">
+                                <label for="logo" class="form-label" th:text="#{cards.form.logo}">Logo</label>
+                                <input type="file" class="form-control" id="logo" name="logo" accept="image/png,image/jpeg,image/gif">
+                                <small class="text-muted" th:text="#{cards.form.logoHelp}">PNG, JPEG or GIF.</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 d-flex align-items-center gap-3" th:if="${existing != null and existing.hasLogo()}">
+                            <div class="loyalty-view-logo" th:style="'background-color:' + ${existing.color}">
+                                <img th:src="@{/cards/{id}/logo(id=${existing.id},v=${existing.logoEtag})}" alt="">
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="removeLogo" th:field="*{removeLogo}">
+                                <label class="form-check-label" for="removeLogo" th:text="#{cards.form.removeLogo}">Remove the current logo</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="note" class="form-label" th:text="#{cards.form.note}">Note</label>
+                            <textarea class="form-control" id="note" th:field="*{note}" rows="2" maxlength="500"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success"
+                                    th:text="${existing == null} ? #{common.create} : #{common.save}">Create</button>
+                            <a th:href="${existing == null} ? @{/cards} : @{/cards/{id}(id=${existing.id})}"
+                               class="btn btn-outline-secondary" th:text="#{common.cancel}">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sharing: owner only, edit mode only -->
+            <div class="card shadow mb-4" th:if="${existing != null}">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="#{cards.share.title}">Shared with</h5>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0" th:each="h : ${holders}">
+                            <span>
+                                <span th:text="${h.user.name}">Name</span>
+                                <small class="text-muted d-block" th:text="${h.user.email}">email</small>
+                            </span>
+                            <span th:if="${existing.isOwnedBy(h.user.id)}" class="badge bg-secondary" th:text="#{cards.share.owner}">Owner</span>
+                            <form th:unless="${existing.isOwnedBy(h.user.id)}" method="post"
+                                  th:action="@{/cards/{id}/holders/{uid}/remove(id=${existing.id},uid=${h.user.id})}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" th:text="#{cards.share.remove}">Remove</button>
+                            </form>
+                        </li>
+                    </ul>
+                    <form th:action="@{/cards/{id}/share(id=${existing.id})}" method="post" class="input-group">
+                        <input type="email" name="email" class="form-control" th:placeholder="#{cards.share.emailPlaceholder}" required>
+                        <button type="submit" class="btn btn-outline-primary" th:text="#{cards.share.add}">Share</button>
+                    </form>
+                    <small class="text-muted" th:text="#{cards.share.help}">They can show and pin the card.</small>
+                </div>
+            </div>
+
+            <form th:if="${existing != null}" th:action="@{/cards/{id}/delete(id=${existing.id})}" method="post"
+                  class="text-center">
+                <button type="submit" class="btn btn-link text-danger" th:data-confirm="#{cards.form.deleteConfirm}">
+                    <i class="bi bi-trash"></i> <span th:text="#{cards.form.delete}">Delete card</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Camera scanner -->
+<div class="modal fade" id="scan-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{cards.scan.title}">Scan the card</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <video id="scan-video" class="w-100 rounded bg-dark" playsinline muted></video>
+                <p class="text-muted small mt-2 mb-0" th:text="#{cards.scan.hint}">Point the camera at the barcode.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="card-form-i18n" class="d-none"
+     th:attr="data-unsupported=#{cards.scan.unsupported}, data-unknown-format=#{cards.scan.unknownFormat},
+              data-zxing-url=@{/webjars/zxing__library/0.21.3/umd/index.min.js}"></div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+<script th:src="@{/webjars/bwip-js/4.5.1/dist/bwip-js-min.js}"></script>
+<script th:src="@{/js/cards-common.js}"></script>
+<script th:src="@{/js/cards-form.js}"></script>
+</body>
+</html>

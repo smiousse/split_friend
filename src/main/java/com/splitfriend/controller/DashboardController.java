@@ -6,6 +6,7 @@ import com.splitfriend.model.User;
 import com.splitfriend.security.CustomUserDetailsService;
 import com.splitfriend.service.BalanceService;
 import com.splitfriend.service.GroupService;
+import com.splitfriend.service.LoyaltyCardService;
 import com.splitfriend.service.PersonalBalanceService;
 import com.splitfriend.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,17 +31,20 @@ public class DashboardController {
     private final BalanceService balanceService;
     private final PersonalBalanceService personalBalanceService;
     private final UserService userService;
+    private final LoyaltyCardService loyaltyCardService;
     private final MessageSource messageSource;
 
     public DashboardController(GroupService groupService,
                                BalanceService balanceService,
                                PersonalBalanceService personalBalanceService,
                                UserService userService,
+                               LoyaltyCardService loyaltyCardService,
                                MessageSource messageSource) {
         this.groupService = groupService;
         this.balanceService = balanceService;
         this.personalBalanceService = personalBalanceService;
         this.userService = userService;
+        this.loyaltyCardService = loyaltyCardService;
         this.messageSource = messageSource;
     }
 
@@ -65,6 +69,7 @@ public class DashboardController {
         model.addAttribute("groups", groups);
         model.addAttribute("groupBalances", groupBalances);
         model.addAttribute("summary", summary);
+        model.addAttribute("pinnedCards", loyaltyCardService.findPinnedForUser(user.getId()));
 
         return "dashboard";
     }

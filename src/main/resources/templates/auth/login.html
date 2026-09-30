@@ -71,6 +71,8 @@
     </div>
 </div>
 
+<!-- Reaching the login page means there is no session: app.js drops any saved pages. -->
+<div id="purge-offline-data" hidden></div>
 <div th:replace="~{layout/main :: scripts}"></div>
 </body>
 </html>

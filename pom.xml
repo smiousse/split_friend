@@ -94,6 +94,19 @@
             <version>3.7.1</version>
         </dependency>
 
+        <!-- Loyalty cards: barcode rendering and camera scanning, served from /webjars -->
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>bwip-js</artifactId>
+            <version>4.5.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>zxing__library</artifactId>
+            <version>0.21.3</version>
+        </dependency>
+
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>webjars-locator-core</artifactId>

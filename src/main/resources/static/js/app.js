@@ -550,3 +550,38 @@ function copyApiToken() {
         input.select();
     });
 }
+
+// Drop every page the service worker saved. Those include loyalty card
+// numbers, and the next person to use this device must not be able to open
+// them offline. The worker is told first so fetches it still has in flight
+// cannot write their results back after the caches are gone.
+function purgeOfflineData() {
+    if (!('caches' in window)) {
+        return Promise.resolve();
+    }
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: 'purge' });
+    }
+    return caches.keys()
+        .then(function(names) {
+            return Promise.all(names.map(function(name) { return caches.delete(name); }));
+        })
+        .catch(function() { /* nothing cached, or storage unavailable */ });
+}
+
+// The login page: whoever was signed in here before is gone (logged out,
+// session expired, account disabled), so their saved pages go too.
+if (document.getElementById('purge-offline-data')) {
+    purgeOfflineData();
+}
+
+document.addEventListener('submit', function(event) {
+    var form = event.target;
+    if (!form.classList || !form.classList.contains('js-logout')) {
+        return;
+    }
+    event.preventDefault();
+    purgeOfflineData().then(function() {
+        form.submit();
+    });
+});

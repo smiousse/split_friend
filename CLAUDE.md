@@ -38,7 +38,8 @@ com.splitfriend/
 ├── config/          # SecurityConfig, JettyConfig, WebConfig
 ├── controller/      # Web controllers (REST-style endpoints returning HTML views)
 │   └── admin/       # Admin-only controllers (AdminController, UserManagementController, BackupController)
-├── model/           # JPA entities: User, Group, GroupMember, Expense, ExpenseSplit, Settlement, Budget, BudgetItem
+├── model/           # JPA entities: User, Group, GroupMember, Expense, ExpenseSplit, Settlement, Budget, BudgetItem,
+│                    # LoyaltyCard, LoyaltyCardHolder, LoyaltyCardLogo
 │   └── enums/       # Role (ADMIN, USER), SplitType (EQUAL, PERCENTAGE, EXACT, SHARES),
 │                    # BudgetFrequency, BudgetSide (A, B), BudgetItemType (SHARED, ABSORBED)
 ├── repository/      # Spring Data JPA repositories
@@ -46,6 +47,7 @@ com.splitfriend/
 │   ├── BalanceService          # Calculates who owes whom
 │   ├── BudgetCalculationService # Normalizes recurring costs, computes the net transfer
 │   ├── BudgetService           # Budget CRUD; access control is built into its lookups
+│   ├── LoyaltyCardService      # Loyalty cards + sharing; access control built into lookups
 │   ├── DebtSimplificationService # Minimizes transactions to settle debts
 │   ├── BackupService/Scheduler  # Database backup functionality
 │   └── TotpService             # Two-factor authentication
@@ -93,6 +95,39 @@ insurance), split by a fixed percentage.
   any budget, and doing so is logged) and `requireWriteAccess` (participants
   only, no admin bypass). Non-participants get a read-only view; the template
   hides every mutating control when `currentSide == null`.
+
+### Loyalty Cards
+
+Personal store cards shown at the till (`/cards`), available to every user
+(no feature flag).
+
+- The barcode is never stored: `card_number` + `BarcodeFormat` are drawn in
+  the browser by bwip-js (webjar). `BarcodeValidator` normalizes the number on
+  save (EAN/UPC check digits, ITF even length, Codabar start/stop) so an
+  unencodable card fails on save, not at the till.
+- Access: every person who can see a card, owner included, has a
+  `LoyaltyCardHolder` row. Reads go through `requireAccess` (holder row),
+  writes through `requireOwner`. Shared holders can view, pin, record use and
+  leave; only the owner edits, deletes or shares. No admin bypass. Pin and
+  usage ordering are per holder.
+- Logos are decoded (pixel-capped, subsampled, PNG/JPEG/GIF only) and
+  re-encoded as <=256px PNG by `LogoImageProcessor` (SVG refused, EXIF
+  dropped), then stored in `loyalty_card_logos`, not `./uploads`: the SQL
+  backup covers the DB only, and `/uploads/**` has no ownership check.
+  `LoyaltyCard.logo_etag` is non-null iff a logo exists and versions the logo
+  URL (`?v=`). Logos are served `no-store` - the HTTP cache survives logout.
+- Offline: `sw.js` saves **only** card pages, card logos and their scripts;
+  every other page is network-only (balances, API tokens and admin pages must
+  not be readable offline). Card pages are network-first with a 3s timeout.
+  The list page sends the full card set so the worker saves unopened cards and
+  prunes revoked ones; a 401/403/404/redirect for a card URL deletes its copy.
+  Saved data is purged on logout (`form.js-logout`, plus `Clear-Site-Data:
+  "cache"` from `SecurityConfig`) and whenever the login page renders; a
+  `generation` counter stops in-flight saves writing back after a purge.
+- Scanning to add uses `BarcodeDetector` where available, else ZXing (webjar,
+  loaded on demand). Camera access needs HTTPS. zxing-js cannot read Codabar
+  or ITF shorter than 6 digits; typing the number still works.
+- `UserService.deleteUser` removes the user's cards and holder rows first.
 
 ### Security Model
 

@@ -10,6 +10,24 @@
 <div class="container mt-4">
     <div th:replace="~{layout/main :: alerts}"></div>
 
+    <!-- Pinned loyalty cards: one tap to the card screen at the till -->
+    <div class="dashboard-pinned-cards mb-3" th:unless="${#lists.isEmpty(pinnedCards)}">
+        <a th:each="h : ${pinnedCards}" th:with="c=${h.card}"
+           th:href="@{/cards/{id}(id=${c.id})}" class="dashboard-pinned-card text-decoration-none"
+           th:title="${c.merchantName}">
+            <span class="loyalty-tile-face" th:style="'background-color:' + ${c.color}">
+                <img th:if="${c.hasLogo()}" th:src="@{/cards/{id}/logo(id=${c.id},v=${c.logoEtag})}"
+                     th:alt="${c.merchantName}" loading="lazy">
+                <span th:unless="${c.hasLogo()}" class="loyalty-tile-initials" th:text="${c.initials}">MT</span>
+            </span>
+            <span class="dashboard-pinned-name text-truncate" th:text="${c.merchantName}">Metro</span>
+        </a>
+        <a th:href="@{/cards}" class="dashboard-pinned-card dashboard-pinned-all text-decoration-none" th:title="#{cards.list.title}">
+            <span class="loyalty-tile-face"><i class="bi bi-grid-3x3-gap"></i></span>
+            <span class="dashboard-pinned-name text-truncate" th:text="#{dashboard.allCards}">All cards</span>
+        </a>
+    </div>
+
     <div class="row mb-4">
         <div class="col">
             <h2 class="d-flex align-items-center">

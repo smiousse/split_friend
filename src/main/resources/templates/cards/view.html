@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Loyalty card - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-3 mb-5">
+    <div th:replace="~{layout/main :: alerts}"></div>
+    <div class="alert alert-warning alert-permanent py-2 d-none" id="card-offline" th:text="#{cards.view.offline}">Offline</div>
+
+    <div class="d-flex align-items-center mb-3">
+        <a th:href="@{/cards}" class="btn btn-link px-0 me-2" th:title="#{common.back}"><i class="bi bi-arrow-left fs-4"></i></a>
+        <div class="loyalty-view-logo me-2" th:style="'background-color:' + ${card.color}">
+            <img th:if="${card.hasLogo()}" th:src="@{/cards/{id}/logo(id=${card.id},v=${card.logoEtag})}" th:alt="${card.merchantName}">
+            <span th:unless="${card.hasLogo()}" th:text="${card.initials}">MT</span>
+        </div>
+        <h3 class="mb-0 flex-grow-1 text-truncate" th:text="${card.merchantName}">Metro</h3>
+        <a th:if="${isOwner}" th:href="@{/cards/{id}/edit(id=${card.id})}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-pencil"></i> <span th:text="#{common.edit}">Edit</span>
+        </a>
+    </div>
+
+    <!-- The barcode is drawn here by cards-view.js; nothing in this block depends on the network. -->
+    <div id="card-screen" class="loyalty-barcode-panel" role="button" tabindex="0"
+         th:attr="data-bcid=${card.barcodeFormat.bwipId},
+                  data-text=${card.cardNumber},
+                  data-two-d=${card.barcodeFormat.twoDimensional},
+                  data-used-url=@{/cards/{id}/used(id=${card.id})},
+                  data-csrf-header=${_csrf.headerName},
+                  data-csrf-token=${_csrf.token}">
+        <canvas id="card-barcode" th:unless="${card.barcodeFormat.name() == 'NONE'}"></canvas>
+        <div class="loyalty-barcode-number" th:text="${card.cardNumber}">123456789</div>
+    </div>
+    <p class="text-muted small text-center mt-2 mb-1" th:unless="${card.barcodeFormat.name() == 'NONE'}"
+       th:text="#{cards.view.tapToEnlarge}">Tap the barcode to enlarge it</p>
+    <p class="text-muted small text-center" th:text="#{cards.view.brightness}">Turn the screen brightness up.</p>
+
+    <p th:if="${card.note != null}" class="mt-3" style="white-space: pre-line" th:text="${card.note}">Note</p>
+
+    <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+        <form th:action="@{/cards/{id}/pin(id=${card.id},back='view')}" method="post">
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+                <i th:class="${holder.pinnedFlag} ? 'bi bi-pin-fill' : 'bi bi-pin'"></i>
+                <span th:text="${holder.pinnedFlag} ? #{cards.list.unpin} : #{cards.list.pin}">Pin</span>
+            </button>
+        </form>
+        <form th:unless="${isOwner}" th:action="@{/cards/{id}/leave(id=${card.id})}" method="post">
+            <button type="submit" class="btn btn-outline-danger btn-sm" th:data-confirm="#{cards.view.leaveConfirm}">
+                <i class="bi bi-x-circle"></i> <span th:text="#{cards.view.leave}">Remove from my cards</span>
+            </button>
+        </form>
+    </div>
+    <p th:unless="${isOwner}" class="text-muted small text-center mt-2"
+       th:text="#{cards.view.sharedBy(${card.owner.name})}">Shared by someone</p>
+</div>
+
+<!-- Full-screen focus mode: white, barcode as large as the screen allows. -->
+<div id="card-focus" class="loyalty-focus d-none" role="dialog" aria-modal="true" tabindex="-1">
+    <canvas id="card-focus-barcode"></canvas>
+    <div class="loyalty-barcode-number" th:text="${card.cardNumber}">123456789</div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+<script th:src="@{/webjars/bwip-js/4.5.1/dist/bwip-js-min.js}"></script>
+<script th:src="@{/js/cards-common.js}"></script>
+<script th:src="@{/js/cards-view.js}"></script>
+</body>
+</html>

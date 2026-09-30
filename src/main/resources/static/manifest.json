@@ -61,6 +61,13 @@
   "categories": ["finance", "utilities"],
   "shortcuts": [
     {
+      "name": "Loyalty cards",
+      "short_name": "Cards",
+      "description": "Show a loyalty card at the till",
+      "url": "/cards",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "View your dashboard",

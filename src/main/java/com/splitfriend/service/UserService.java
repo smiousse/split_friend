@@ -22,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LoyaltyCardService loyaltyCardService;
 
     @Value("${app.admin.default-email:admin@splitfriend.local}")
     private String adminEmail;
@@ -29,9 +30,11 @@ public class UserService {
     @Value("${app.admin.default-password:admin123}")
     private String adminPassword;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                       LoyaltyCardService loyaltyCardService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.loyaltyCardService = loyaltyCardService;
     }
 
     @PostConstruct
@@ -116,6 +119,7 @@ public class UserService {
     }
 
     public void deleteUser(Long userId) {
+        loyaltyCardService.deleteAllForUser(userId);
         userRepository.deleteById(userId);
     }
 

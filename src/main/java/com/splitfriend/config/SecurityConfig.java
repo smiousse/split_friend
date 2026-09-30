@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -102,6 +104,11 @@ public class SecurityConfig {
             )
             .logout(logout -> logout
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                // Browsers keep saved pages (loyalty card numbers) in Cache Storage and
+                // the HTTP cache; clear both even if the page's own JS never ran.
+                // Honoured over HTTPS only, so app.js also clears Cache Storage itself.
+                .addLogoutHandler(new HeaderWriterLogoutHandler(
+                        new ClearSiteDataHeaderWriter(ClearSiteDataHeaderWriter.Directive.CACHE)))
                 .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID", "remember-me")

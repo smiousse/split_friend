@@ -821,3 +821,180 @@ body {
         font-size: 0.75rem;
     }
 }
+
+/* ---------- Loyalty cards ---------- */
+
+.loyalty-tile-link {
+    display: block;
+    color: inherit;
+}
+
+.loyalty-tile-face {
+    aspect-ratio: 1.586; /* ID-1 card proportions */
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.1s ease;
+}
+
+.loyalty-tile-link:active .loyalty-tile-face {
+    transform: scale(0.97);
+}
+
+.loyalty-tile-face img {
+    max-width: 80%;
+    max-height: 75%;
+    object-fit: contain;
+}
+
+.loyalty-tile-initials {
+    color: #fff;
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.loyalty-tile-name {
+    margin-top: 0.35rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.loyalty-tile-pin {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+}
+
+.loyalty-tile-pin .btn {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    opacity: 0.85;
+}
+
+.loyalty-tile-shared {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+}
+
+.loyalty-view-logo {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #fff;
+    font-weight: 700;
+}
+
+.loyalty-view-logo img {
+    max-width: 85%;
+    max-height: 85%;
+    object-fit: contain;
+}
+
+/* Always black on white, whatever the theme: scanners need contrast. */
+.loyalty-barcode-panel {
+    background: #fff;
+    color: #000;
+    border-radius: 0.75rem;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+}
+
+.loyalty-barcode-preview {
+    cursor: default;
+    min-height: 3rem;
+}
+
+.loyalty-barcode-panel canvas,
+.loyalty-focus canvas {
+    max-width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+}
+
+.loyalty-barcode-number {
+    margin-top: 0.75rem;
+    font-family: var(--bs-font-monospace);
+    font-size: 1.35rem;
+    letter-spacing: 0.08em;
+    word-break: break-all;
+}
+
+.loyalty-focus {
+    outline: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: #fff;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.loyalty-focus canvas {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+}
+
+.loyalty-focus .loyalty-barcode-number {
+    font-size: 1.75rem;
+}
+
+.navbar-cards-shortcut {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Pinned loyalty cards at the top of the dashboard; wraps onto as many rows as needed. */
+.dashboard-pinned-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+    gap: 0.75rem;
+}
+
+.dashboard-pinned-card {
+    min-width: 0;
+    color: inherit;
+}
+
+.dashboard-pinned-card .loyalty-tile-face {
+    border-radius: 0.5rem;
+}
+
+.dashboard-pinned-card .loyalty-tile-initials {
+    font-size: 1.1rem;
+}
+
+.dashboard-pinned-name {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.dashboard-pinned-all .loyalty-tile-face {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 1.4rem;
+    box-shadow: none;
+    border: 1px dashed var(--bs-border-color);
+}

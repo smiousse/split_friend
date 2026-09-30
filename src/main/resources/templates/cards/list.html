@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/main :: head}">
+    <title>Loyalty cards - SplitFriend</title>
+</head>
+<body>
+<div th:replace="~{layout/main :: navbar}"></div>
+
+<div class="container mt-3 mb-5">
+    <div th:replace="~{layout/main :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0" th:text="#{cards.list.title}">Loyalty cards</h2>
+        <a th:href="@{/cards/new}" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> <span class="d-none d-sm-inline" th:text="#{cards.list.add}">Add card</span>
+        </a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(holders)}" class="card">
+        <div class="card-body text-center text-muted py-5">
+            <i class="bi bi-credit-card-2-front fs-1 d-block mb-3"></i>
+            <p th:text="#{cards.list.empty}">No loyalty cards yet.</p>
+            <a th:href="@{/cards/new}" th:text="#{cards.list.addFirst}">Add your first card</a>
+        </div>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(holders)}">
+        <input type="search" class="form-control mb-3" id="card-search"
+               th:placeholder="#{cards.list.search}" th:if="${#lists.size(holders) > 6}" autocomplete="off">
+
+        <!-- data-card-url / data-logo-url let the service worker save every card for offline use -->
+        <div class="row g-3" id="card-grid">
+            <div class="col-6 col-sm-4 col-lg-3 card-tile-col" th:each="h : ${holders}"
+                 th:with="c=${h.card}"
+                 th:attr="data-name=${#strings.toLowerCase(c.merchantName)},
+                          data-card-url=@{/cards/{id}(id=${c.id})},
+                          data-logo-url=${c.hasLogo()} ? @{/cards/{id}/logo(id=${c.id},v=${c.logoEtag})} : ''">
+                <div class="loyalty-tile position-relative">
+                    <a th:href="@{/cards/{id}(id=${c.id})}" class="loyalty-tile-link text-decoration-none">
+                        <div class="loyalty-tile-face" th:style="'background-color:' + ${c.color}">
+                            <img th:if="${c.hasLogo()}" th:src="@{/cards/{id}/logo(id=${c.id},v=${c.logoEtag})}"
+                                 th:alt="${c.merchantName}" loading="lazy">
+                            <span th:unless="${c.hasLogo()}" class="loyalty-tile-initials" th:text="${c.initials}">MT</span>
+                        </div>
+                        <div class="loyalty-tile-name text-truncate" th:text="${c.merchantName}">Metro</div>
+                    </a>
+                    <form th:action="@{/cards/{id}/pin(id=${c.id})}" method="post" class="loyalty-tile-pin">
+                        <button type="submit" class="btn btn-sm btn-light rounded-circle"
+                                th:title="${h.pinnedFlag} ? #{cards.list.unpin} : #{cards.list.pin}">
+                            <i th:class="${h.pinnedFlag} ? 'bi bi-pin-fill' : 'bi bi-pin'"></i>
+                        </button>
+                    </form>
+                    <span th:unless="${c.isOwnedBy(currentUserId)}"
+                          class="badge bg-secondary loyalty-tile-shared" th:text="#{cards.list.shared}">Shared</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/main :: scripts}"></div>
+<script th:src="@{/js/cards-list.js}"></script>
+</body>
+</html>
